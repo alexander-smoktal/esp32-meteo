@@ -10,6 +10,5 @@ public:
     void toggle();
 
 private:
-    bool m_toggled = false;
     UI *m_ui;
 };

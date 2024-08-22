@@ -27,17 +27,31 @@
 #define LCD_BL_ON_LEVEL (1)
 
 static const char *TAG = "ui";
-static uint32_t FADE_TIME = 300;
+static const uint32_t FADE_TIME = 300;
+static const uint32_t PREDICTION_OFF_TIME = 30000000;
 
 UI::UI()
 {
+    esp_timer_create_args_t timer_args = {};
+    timer_args.callback = &prediction_timer_cb;
+    timer_args.arg = this;
+    timer_args.name = "prediction timer";
+
+    ESP_ERROR_CHECK(esp_timer_create(&timer_args, &m_prediction_timer));
+
     ESP_ERROR_CHECK(lcd_init());
     ESP_ERROR_CHECK(lvgl_init());
     draw_ui();
 }
 
-esp_err_t
-UI::lcd_init(void)
+void UI::prediction_timer_cb(void *ctx)
+{
+    auto self = (UI *)ctx;
+
+    self->toggle_prediction(nullptr);
+}
+
+esp_err_t UI::lcd_init(void)
 {
     ESP_LOGI(TAG, "Initializing LCD");
 
@@ -271,8 +285,10 @@ void UI::toggle_prediction(const char *prediction)
         return;
     }
 
+    esp_timer_stop(m_prediction_timer);
     lvgl_port_lock(0);
 
+    m_prediction_toggled = prediction != nullptr;
     if (prediction)
     {
         ESP_LOGI(TAG, "Prediction on: %s", prediction);
@@ -280,6 +296,8 @@ void UI::toggle_prediction(const char *prediction)
         lv_label_set_text(m_prediction, prediction);
         lv_obj_set_style_opa(m_prediction, 255, 0);
         lv_obj_set_style_opa(m_grid, 0, 0);
+
+        esp_timer_start_once(m_prediction_timer, PREDICTION_OFF_TIME);
     }
     else
     {

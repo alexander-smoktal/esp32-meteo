@@ -27,9 +27,11 @@ public:
     void splash_fade_out();
 
     void toggle_prediction(const char *prediction);
+    bool is_prediction_toggled() { return m_prediction_toggled; }
     void toggle_light();
 
 private:
+    static void prediction_timer_cb(void *ctx);
     esp_err_t lcd_init(void);
     esp_err_t lvgl_init(void);
     void draw_ui();
@@ -45,5 +47,7 @@ private:
     esp_lcd_panel_io_handle_t lcd_io = nullptr;
     lv_obj_t *m_grid = nullptr;
     lv_obj_t *m_prediction = nullptr;
+    bool m_prediction_toggled = false;
+    esp_timer_handle_t m_prediction_timer = nullptr;
     bool m_backlight_on = true;
 };
