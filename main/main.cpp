@@ -28,12 +28,7 @@
 #include "ui/display.h"
 #include "event_bus/events.h"
 
-/* This example demonstrates how to create file server
- * using esp_http_server. This file has only startup code.
- * Look in file_server.c for the implementation.
- */
-
-static const char *TAG = "example";
+static const char *TAG = "Meteostation main";
 
 extern "C" void app_main(void)
 {
