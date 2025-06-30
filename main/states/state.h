@@ -1,0 +1,33 @@
+#pragma once
+
+#include <memory>
+
+class StateManager;
+
+enum class StateId {
+    Init,
+    Connected,
+    ConnectionTest,
+    Provisioning,
+    MainScreen,
+    Prediction,
+};
+
+const char *state_id_to_string(StateId state_id);
+
+class State {
+public:
+    using Pointer = std::shared_ptr<State>;
+
+    State() = default;
+    virtual ~State() = default;
+
+    virtual bool enter() = 0;
+    virtual void exit() = 0;
+
+    void set_manager(std::shared_ptr<StateManager> state_manager);
+    void switch_to(StateId state);
+
+private:
+    std::weak_ptr<StateManager> m_state_manager = {};
+};

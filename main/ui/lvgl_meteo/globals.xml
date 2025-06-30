@@ -1,0 +1,69 @@
+<globals>
+    <api>
+        <enumdef name="weather_icon">
+            <enum name="weather_sunny_icon"/>
+            <enum name="weather_sunny_cloud_icon"/>
+            <enum name="weather_cloudy_icon"/>
+            <enum name="weather_cloudy_moon_icon"/>
+            <enum name="weather_cold_icon"/>
+            <enum name="weather_fog_icon"/>
+            <enum name="weather_heavy_rain_icon"/>
+            <enum name="weather_rain_icon"/>
+            <enum name="weather_rain_cloud_icon"/>
+            <enum name="weather_sleet_icon"/>
+            <enum name="weather_snow_icon"/>
+            <enum name="weather_storm_icon"/>
+            <enum name="weather_windy_icon"/>
+        </enumdef>
+    </api>
+
+    <consts>
+        <!-- Add <px>, <int>, <color> etc here -->
+    </consts>
+
+    <styles>
+        <!-- Add <style> tags here -->
+    </styles>
+
+    <images>
+        <file src_path="images/the_one_ring.png" name="the_one_image"></file>
+        <file src_path="images/icons8-house-48.png" name="house_image"></file>
+        <file src_path="images/icons8-nature-48.png" name="outdoor_image"></file>
+        <!-- Weather images -->
+        <file src_path="images/weather/icons8-sunny-96.png" name="weather_sunny_icon"></file>
+        <file src_path="images/weather/icons8-cloudy-96.png" name="weather_sunny_cloud_icon"></file>
+        <file src_path="images/weather/icons8-cloudy-f-96.png" name="weather_cloudy_icon"></file>
+        <file src_path="images/weather/icons8-cloudy-moon-96.png" name="weather_cloudy_moon_icon"></file>
+        <file src_path="images/weather/icons8-cold-96.png" name="weather_cold_icon"></file>
+        <file src_path="images/weather/icons8-fog-96.png" name="weather_fog_icon"></file>
+        <file src_path="images/weather/icons8-heavy-rain-96.png" name="weather_heavy_rain_icon"></file>
+        <file src_path="images/weather/icons8-rain-96.png" name="weather_rain_icon"></file>
+        <file src_path="images/weather/icons8-rain-cloud-96.png" name="weather_rain_cloud_icon"></file>
+        <file src_path="images/weather/icons8-sleet-96.png" name="weather_sleet_icon"></file>
+        <file src_path="images/weather/icons8-snow-96.png" name="weather_snow_icon"></file>
+        <file src_path="images/weather/icons8-storm-with-heavy-rain-96.png" name="weather_storm_icon"></file>
+        <file src_path="images/weather/icons8-windy-weather-96.png" name="weather_windy_icon"></file>
+        <file src_path="images/weather/icons8-hot-96.png" name="weather_hot_icon"></file>
+        <file src_path="images/weather/icons8-full-moon-96.png" name="weather_moon_icon"></file>
+        <!-- Moons -->
+        <file src_path="images/moon_phase/icons8-first-quarter-96.png" name="moon_first_quarter_icon"></file>
+        <file src_path="images/moon_phase/icons8-first-quarter-96-flip.png" name="moon_last_quarter_icon"></file>
+        <file src_path="images/moon_phase/icons8-full-moon-96.png" name="moon_full_icon"></file>
+        <file src_path="images/moon_phase/icons8-new-moon-96.png" name="moon_new_icon"></file>
+        <file src_path="images/moon_phase/icons8-waxing-crescent-96.png" name="moon_waxing_icon"></file>
+        <file src_path="images/moon_phase/icons8-waxing-crescent-96-flip.png" name="moon_laxing_icon"></file>
+        <file src_path="images/moon_phase/icons8-waxing-gibbous-96.png" name="moon_gibbous_icon"></file>
+        <file src_path="images/moon_phase/icons8-waxing-gibbous-96-flip.png" name="moon_lagbous_icon"></file>
+        <!-- Provisioning -->
+        <file src_path="images/icons8-wifi-96.png" name="prov_wifi"></file>
+        <file src_path="images/icons8-website-96.png" name="prov_site"></file>
+        <file src_path="images/icons8-task-completed-96.png" name="prov_complete"></file>
+    </images>
+
+    <fonts>
+        <bin name="forecast_label_font" src_path="fonts/NotoSans.ttf" size="12" symbols="0123456789/°-:"/>
+        <bin name="weather_label_font" src_path="fonts/verdana.ttf" size="15" range="'0x0400-0x04FF,0x0020-0x0080,0x00B0,0x002C,0x2013,0x2019'"/>
+        <bin name="prediction_label_font" src_path="fonts/verdana.ttf" size="24" range="'0x0400-0x04FF,0x0020-0x0080,0x00B0,0x002C,0x2013,0x2019'"/>
+        <bin name="time_label_font" src_path="fonts/NotoSans.ttf" size="55" symbols="0123456789:"/>
+    </fonts>
+</globals>

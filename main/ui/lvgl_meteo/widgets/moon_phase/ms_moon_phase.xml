@@ -1,0 +1,11 @@
+<widget>
+    <previews>
+        <preview width="60" height="60" style_bg_color="0x000"/>
+    </previews>
+    <api>
+        <prop name="phase_image" type="image" default="weather_rain_cloud_icon" />
+    </api>
+    <view scrollable="false">
+        <lv_image name="moon_image" src="moon_laxing_icon"></lv_image>
+    </view>
+</widget>

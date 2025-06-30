@@ -1,0 +1,15 @@
+<screen>
+    <styles>
+        <style name="view_style" bg_color="0x000" pad_all="0" border_width="0" radius="0" />
+        <style name="container" pad_all="0" pad_row="0" bg_opa="0" border_width="0" width="100%" height="100%"/>
+    </styles>
+    <view width="320" height="172" styles="view_style"  scrollable="false">
+        <lv_obj styles="container" flex_flow="column" scrollable="false">
+            <ms_date_time style_margin_left="-1"/>
+            <ms_weather style_margin_left="88"/>
+            <ms_forecast_row style_margin_left="88"/>
+        </lv_obj>
+        <ms_current_weather x="6" y="75" />
+        <ms_moon_phase x="247" y="101"/>
+    </view>
+</screen>

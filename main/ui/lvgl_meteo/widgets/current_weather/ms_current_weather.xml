@@ -1,0 +1,11 @@
+<widget>
+    <previews>
+        <preview width="90" height="90" style_bg_color="0x000"/>
+    </previews>
+    <api>
+        <prop name="weather_image" type="image" default="weather_rain_cloud_icon" />
+    </api>
+    <view scrollable="false">
+        <lv_image name="weather_icon" src="weather_rain_cloud_icon"></lv_image>
+    </view>
+</widget>

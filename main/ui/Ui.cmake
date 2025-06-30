@@ -1,0 +1,33 @@
+
+set(UI_SOURCES
+    "ui/display.cpp"
+    "ui/lvgl_meteo/ui.c"
+    "ui/lvgl_meteo/lvgl_meteo.c"
+    "ui/lvgl_meteo/lvgl_meteo_gen.c"
+    "ui/lvgl_meteo/screens/splash/splash_screen_gen.c"
+    "ui/lvgl_meteo/screens/provisioning/provisioning_screen_gen.c"
+    "ui/lvgl_meteo/screens/main/main_screen_gen.c"
+    "ui/lvgl_meteo/screens/prediction/prediction_screen_gen.c"
+    "ui/lvgl_meteo/widgets/date/ms_date_gen.c"
+    "ui/lvgl_meteo/widgets/date/ms_date.c"
+    "ui/lvgl_meteo/widgets/date_time/ms_date_time_gen.c"
+    "ui/lvgl_meteo/widgets/date_time/ms_date_time.c"
+    "ui/lvgl_meteo/widgets/forecast/ms_forecast_gen.c"
+    "ui/lvgl_meteo/widgets/forecast/ms_forecast.c"
+    "ui/lvgl_meteo/widgets/forecast_row/ms_forecast_row_gen.c"
+    "ui/lvgl_meteo/widgets/forecast_row/ms_forecast_row.c"
+    "ui/lvgl_meteo/widgets/time/ms_time_gen.c"
+    "ui/lvgl_meteo/widgets/time/ms_time.c"
+    "ui/lvgl_meteo/widgets/weather/ms_weather_gen.c"
+    "ui/lvgl_meteo/widgets/weather/ms_weather.c"
+    "ui/lvgl_meteo/widgets/moon_phase/ms_moon_phase_gen.c"
+    "ui/lvgl_meteo/widgets/moon_phase/ms_moon_phase.c"
+    "ui/lvgl_meteo/widgets/current_weather/ms_current_weather_gen.c"
+    "ui/lvgl_meteo/widgets/current_weather/ms_current_weather.c"
+    "ui/lvgl_meteo/fonts/time_label_font_data.c"
+    "ui/lvgl_meteo/fonts/forecast_label_font_data.c"
+    "ui/lvgl_meteo/fonts/weather_label_font_data.c"
+    "ui/lvgl_meteo/fonts/prediction_label_font_data.c"
+    )
+
+list(APPEND SOURCES ${UI_SOURCES})

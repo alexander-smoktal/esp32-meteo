@@ -1,0 +1,6 @@
+dependencies:
+  espressif/bme280: =*
+  espressif/esp_lcd_sh8601: ^1.0.0
+  espressif/esp_lvgl_port: ^2.6.0
+  espressif/json_parser: ^1.0.3
+  espressif/button: =*

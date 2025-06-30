@@ -1,0 +1,38 @@
+<widget>
+    <previews>
+        <preview width="230" height="54" style_bg_color="0x000"/>
+    </previews>
+    <api>
+        <prop name="inhouse" default="0 0 0">
+            <param name="temp" type="int"/>
+            <param name="humid" type="int"/>
+            <param name="pressure" type="int"/>
+        </prop>
+        <prop name="outdoor" default="0 0">
+            <param name="temp" type="int"/>
+            <param name="humid" type="int"/>
+        </prop>
+        <prop name="icon" type="image" default="weather_sunny_icon"/>
+    </api>
+    <styles>
+        <style name="icon" margin_top="8"/>
+        <style name="weather_icon" height="47" width="50"/>
+        <style name="container" border_width="0" bg_opa="0" width="63" height="54" pad_all="0" margin_top="1"/>
+        <style name="weather_label_style" text_font="weather_label_font" text_color="0xdddddd"
+            width="100%" text_align="left" pad_ver="-1"/>
+        <style name="view_style" bg_opa="0" border_width="0" width="230" height="54" pad_all="0" pad_column="3"/>
+    </styles>
+    <view styles="view_style" flex_flow="row" scrollable="false">
+        <lv_image src="house_image" styles="icon"></lv_image>
+        <lv_obj styles="container" flex_flow="column" style_pad_row="-3" scrollable="false">
+            <lv_label name="inhouse_temp" text="T: --°C" styles="weather_label_style"></lv_label>
+            <lv_label name="inhouse_humidity" text="H: --%" styles="weather_label_style"></lv_label>
+            <lv_label name="inhouse_pressure" text="P: ---m" styles="weather_label_style"></lv_label>
+        </lv_obj>
+        <lv_image src="outdoor_image" styles="icon"></lv_image>
+        <lv_obj styles="container" flex_flow="column" style_pad_row="-3" scrollable="false">
+            <lv_label name="outdoor_temp" text="T: --°C" styles="weather_label_style"></lv_label>
+            <lv_label name="outdoor_humidity" text="H: --%" styles="weather_label_style"></lv_label>
+        </lv_obj>
+    </view>
+</widget>

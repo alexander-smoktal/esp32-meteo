@@ -1,0 +1,16 @@
+<screen>
+    <styles>
+        <style name="view_style" bg_color="0x000" pad_all="0" border_side="none" radius="0"/>
+        <style name="container_style" bg_opa="0" border_side="none" pad_column="0"/>
+        <style name="label_style" text_font="weather_label_font" text_color="0xdddddd"
+            width="100%" text_align="left"/>
+    </styles>
+    <view width="320" height="172" styles="view_style" scrollable="false">
+        <lv_obj styles="container_style" flex_flow="row" width="100%" height="100%" x="5" y="60">
+            <lv_image src="prov_site"></lv_image>
+            <lv_image src="prov_wifi" style_margin_left="5"></lv_image>
+            <lv_image src="prov_complete"></lv_image>
+        </lv_obj>
+        <lv_label styles="label_style" text="Що б налаштувати пристрій:\n  - Підключіться до 'MeteoProvisioning'\n  - Відкрийте 192.168.4.1\n  - Заповніть поля" x="10" y="3"></lv_label>
+    </view>
+</screen>

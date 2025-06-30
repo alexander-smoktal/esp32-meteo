@@ -1,0 +1,22 @@
+<widget>
+    <previews>
+        <preview width="50" height="60" style_bg_color="0x000"/>
+    </previews>
+    <api>
+        <prop name="temp" default="1 1">
+            <param name="temp_low" type="int"/>
+            <param name="temp_high" type="int"/>
+        </prop>
+        <prop name="icon" type="image" default="weather_sunny_cloud_icon"></prop>
+    </api>
+    <styles>
+        <style name="temp_label" text_font="forecast_label_font" text_color="0xdddddd" 
+            width="100%" text_align="center" margin_top="-3"/>
+        <style name="icon_style" width="50" height="50"/>
+        <style name="view_style" bg_opa="0" border_width="0" width="50" height="60" pad_all="0" pad_row="0"/>
+    </styles>
+    <view styles="view_style" flex_flow="column" scrollable="false">
+        <lv_image name="weather_icon" src="weather_sleet_icon" styles="icon_style" scale_x="140" scale_y="140"></lv_image>
+        <lv_label name="temp_label" text="-20°/-30°" styles="temp_label"></lv_label>
+    </view>
+</widget>

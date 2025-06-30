@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi Provisioning</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+        .provision-card {
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        .card-header {
+            background-color: #e13b6d;
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 15px;
+        }
+        .form-container {
+            padding: 20px;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .input-group-text {
+            background-color: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card provision-card">
+            <div class="card-header text-center">
+                <h3><i class="bi bi-cpu"></i> Метеостанція</h3>
+                <p class="mb-0">Налаштування пристрою</p>
+            </div>
+            <div class="form-container">
+                <form id="provisionForm" action="/provision" method="POST" class="needs-validation" novalidate>
+                    <!-- WiFi Network Selection -->
+                    <div class="mb-3">
+                        <label for="wifi_ssid" class="form-label">WiFi Мережа</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-wifi"></i></span>
+                            <select class="form-select" id="wifi_ssid" name="wifi_ssid" required>
+                                <option value="" selected disabled>Оберіть WiFi Мережу</option>
+                                <!-- Networks will be populated via JavaScript -->
+                            </select>
+                            <button class="btn btn-outline-secondary" type="button" id="refreshNetworks">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+                            <div class="invalid-feedback">
+                                Будь ласка, оберіть WiFi мережу.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- WiFi Password -->
+                    <div class="mb-3">
+                        <label for="wifi_password" class="form-label">WiFi Пароль</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-key"></i></span>
+                            <input type="password" class="form-control" id="wifi_password" name="wifi_password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <div class="invalid-feedback">
+                                Будь ласка, введіть пароль WiFi.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Owner Name -->
+                    <div class="mb-3">
+                        <label for="owner_name" class="form-label">Ім'я власника</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input type="text" class="form-control" id="owner_name" name="owner_name" required>
+                            <div class="invalid-feedback">
+                                Будь ласка, введіть ім'я власника.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Weather API Token -->
+                    <div class="mb-3">
+                        <label for="weath_api_token" class="form-label">Accuweather API Токен</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-cloud-sun"></i></span>
+                            <input type="text" class="form-control" id="weath_api_token" name="weath_api_token" required>
+                            <div class="invalid-feedback">
+                                Будь ласка, введіть ваш API токен.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Weather city -->
+                    <div class="mb-3">
+                        <label for="weath_city" class="form-label">Accuweather ID міста</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-building"></i></span>
+                            <input type="text" class="form-control" id="weath_city" name="weath_city" required>
+                            <div class="invalid-feedback">
+                                Будь ласка, введіть ID вашого міста.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Time zone -->
+                    <div class="mb-3">
+                        <label for="time_zone" class="form-label">Часовий пояс (<a href="https://www.man7.org/linux/man-pages/man3/tzset.3.html">як порахувати</a>)</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-clock-history"></i></span>
+                            <input type="text" class="form-control" id="time_zone" name="time_zone" value="EET-2EEST-3,M4.5.0/3,M10.5.0/4" required>
+                            <div class="invalid-feedback">
+                                Будь ласка, введіть часовий пояс вашого міста.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Зберегти Налаштування
+                    </button>
+                </form>
+
+                <!-- Status Message -->
+                <div class="mt-3">
+                    <div id="statusMessage" class="alert d-none"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap & JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for x- prefixed headers and prefill input fields
+            async function prefillFromHeaders() {
+                try {
+                    // Make a request to get headers (we'll use the current page)
+                    // Note: The headers are base64 encoded, so we will decode them
+                    const response = await fetch(window.location.href, { method: 'HEAD' });
+
+                    console.log('Response Headers:', response.headers);
+                    // Check for x-owner_name header
+                    const ownerName = response.headers.get('x-owner_name');
+                    if (ownerName) {
+                        // Decoding base64 encoded owner name with Unicode support
+                        document.getElementById('owner_name').value = decodeURIComponent(escape(atob(ownerName)));
+                    }
+
+                    // Check for x-weath_api_token header
+                    const weatherApiToken = response.headers.get('x-weath_api_token');
+                    if (weatherApiToken) {
+                        document.getElementById('weath_api_token').value = atob(weatherApiToken);
+                    }
+
+                    // Check for x-weath_city header
+                    const weatherCity = response.headers.get('x-weath_city');
+                    if (weatherCity) {
+                        document.getElementById('weath_city').value = atob(weatherCity);
+                    }
+
+                    // Check for x-time_zone header
+                    const timeZone = response.headers.get('x-time_zone');
+                    if (timeZone) {
+                        document.getElementById('time_zone').value = atob(timeZone);
+                    }
+                } catch (error) {
+                    console.log('Could not fetch headers for prefilling:', error);
+                }
+            }
+
+            // Call prefill function on page load
+            prefillFromHeaders();
+
+            // Form validation
+            const form = document.getElementById('provisionForm');
+
+            // Handle form submission
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                } else {
+                    // If form is valid, show loading state
+                    document.querySelector('button[type="submit"]').innerHTML =
+                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+
+                    // You would normally submit the form here
+                    // For demo purposes, we're preventing the default action and showing a success message
+                    event.preventDefault();
+
+                    // POST the form data to the server
+                    const formData = new FormData(form);
+                    fetch('/set_credentials', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        showStatus('Configuration saved successfully! Your device will restart.', 'success');
+                        document.querySelector('button[type="submit"]').innerHTML =
+                            '<i class="bi bi-check-circle"></i> Save Configuration';
+                    })
+                }
+
+                form.classList.add('was-validated');
+            });
+
+            // Toggle password visibility
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('wifi_password');
+
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+
+                // Toggle the eye icon
+                this.querySelector('i').classList.toggle('bi-eye');
+                this.querySelector('i').classList.toggle('bi-eye-slash');
+            });
+
+
+
+            // Simulate network refresh
+            const refreshButton = document.getElementById('refreshNetworks');
+            const networkSelect = document.getElementById('wifi_ssid');
+
+            refreshButton.addEventListener('click', async (event) => {
+                // Show loading state
+                this.disabled = true;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+                // Clear existing options
+                while (networkSelect.options.length > 1) {
+                    networkSelect.remove(1);
+                }
+
+                let response = await fetch("/endpoints");
+                if (!response.ok) {
+                    throw new Error(`Response status: ${response.status}`);
+                }
+
+                const sampleNetworks = await response.json();
+                sampleNetworks.sort((a, b) => b.strength - a.strength);
+
+                sampleNetworks.forEach(network => {
+                    const option = document.createElement('option');
+                    option.value = network.ssid;
+                    option.text = `${network.ssid} (${network.strength}%)`;
+                    networkSelect.add(option);
+                });
+
+                // Reset button state
+                refreshButton.disabled = false;
+                refreshButton.innerHTML = '<i class="bi bi-arrow-clockwise"></i>';
+
+                showStatus('Networks refreshed successfully!', 'info');
+            });
+
+            // Trigger network refresh on page load
+            refreshButton.click();
+
+            // Function to show status messages
+            function showStatus(message, type) {
+                const statusElement = document.getElementById('statusMessage');
+                statusElement.textContent = message;
+                statusElement.className = `alert alert-${type}`;
+                statusElement.classList.remove('d-none');
+
+                // Hide message after 3 seconds
+                setTimeout(() => {
+                    statusElement.classList.add('d-none');
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

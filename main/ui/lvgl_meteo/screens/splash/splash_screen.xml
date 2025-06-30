@@ -1,0 +1,8 @@
+<screen>
+    <styles>
+        <style name="view_style" bg_color="0x000" pad_all="0" border_width="0" radius="0"/>
+    </styles>
+    <view width="320" height="172" styles="view_style">
+        <lv_image src="the_one_image" width="310" height="100%" x="10"></lv_image>
+    </view>
+</screen>

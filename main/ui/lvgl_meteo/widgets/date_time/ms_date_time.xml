@@ -1,0 +1,12 @@
+<widget>
+    <previews>
+        <preview width="320" height="55" style_bg_color="#000000"/>
+    </previews>
+    <styles>
+        <style name="view_style" bg_opa="0" border_width="0" width="320" height="55" pad_all="0" pad_row="0"/>
+    </styles>
+    <view styles="view_style" flex_flow="row" scrollable="false">
+        <ms_time time="0 0 0"/>
+        <ms_date style_margin_top="3"/>
+    </view>
+</widget>

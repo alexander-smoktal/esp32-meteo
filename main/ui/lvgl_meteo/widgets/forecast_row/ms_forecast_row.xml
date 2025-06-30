@@ -1,0 +1,30 @@
+<widget>
+    <previews>
+        <preview width="150" height="60" style_bg_color="#000000"/>
+    </previews>
+    <api>
+        <prop name="forecast_1" default="17 7 weather_sunny_cloud_icon">
+            <param name="temp_low" type="int"/>
+            <param name="temp_high" type="int"/>
+            <param name="icon" type="image"/>
+        </prop>
+        <prop name="forecast_2" default="0 1 weather_rain_cloud_icon">
+            <param name="temp_low" type="int"/>
+            <param name="temp_high" type="int"/>
+            <param name="icon" type="image"/>
+        </prop>
+        <prop name="forecast_3" default="-3 -17 weather_snow_icon">
+            <param name="temp_low" type="int"/>
+            <param name="temp_high" type="int"/>
+            <param name="icon" type="image"/>
+        </prop>
+    </api>
+    <styles>
+        <style name="view_style" bg_opa="0" border_width="0" width="150" height="60" pad_all="0" pad_row="0"/>
+    </styles>
+    <view styles="view_style" flex_flow="row" scrollable="false">
+        <ms_forecast name="forecast_1_widget" temp="17 7" icon="weather_sunny_cloud_icon"/>
+        <ms_forecast name="forecast_2_widget" temp="0 1" icon="weather_rain_cloud_icon"/>
+        <ms_forecast name="forecast_3_widget" temp="-3 -17" icon="weather_snow_icon"/>
+    </view>
+</widget>
