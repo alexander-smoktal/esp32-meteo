@@ -13,6 +13,9 @@
 #include "io/button.h"
 #include "event_bus/events.h"
 
+/* A state manager that have a set of subsystems, each of which has states.
+   When switching, switches all subsystems to a single state.
+*/
 class StateManager : public std::enable_shared_from_this<StateManager>
 {
 public:
@@ -24,8 +27,9 @@ public:
                         std::shared_ptr<Events> events,
                         std::shared_ptr<Button> button);
 
-    StateSubsystem::Pointer add_subsystem(int priority, const std::string &&name);
-    // Sends a request to switch to a new state
+    std::shared_ptr<StateSubsystem> add_subsystem(int priority, const std::string &&name);
+
+    // Sends a request to switch to a new state.
     void switch_to(StateId state);
 
 private:
@@ -35,6 +39,6 @@ private:
     static void switch_loop(void *context);
 
     StateId m_current_state = StateId::Init;
-    std::vector<StateSubsystem::Pointer> m_subsystems = {};
+    std::vector<std::shared_ptr<StateSubsystem>> m_subsystems = {};
     TaskHandle_t m_task_handle = nullptr;
 };

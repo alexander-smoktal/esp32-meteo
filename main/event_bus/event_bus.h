@@ -9,7 +9,12 @@
 
 #include "event_bus_c.h"
 
-
+/* And event bus is a system that allows different parts of the application to communicate with each other.
+   Uses data cache to store events and their data and if cached value is available send it on subscription.
+   It is a singleton class that can be used to publish and subscribe to events.
+   Events are identified by an enum EventBusEvent, which is defined in event_bus_c.h
+   and can be used to identify the event type.
+*/
 class EventBus {
 public:
     using EventSubscription = std::function<void(void* data)>;
@@ -18,7 +23,13 @@ public:
     static EventBus& init_instance(std::shared_ptr<NVStorage> data_storage);
     static EventBus& get_instance();
 
+    // Publish data. If save_to_cache is true, the data will be saved to the cache.
+    // If the data is already cached, it will be sent to all subscribers whn they subscribe.
     void pubish(EventBusEvent event, const void* data, size_t size, bool save_to_cache = true);
+
+    // Subscribe to an event.
+    // If the event is already cached, the data will be sent immediately.
+    // If the event is not cached, the callback will be called when the event is published
     void subscribe(EventBusEvent event, EventSubscription callback);
 
 private:

@@ -5,15 +5,15 @@
 
 #include "ui/lvgl_meteo/screens/prediction/prediction_screen_gen.h"
 
-static constexpr auto TIMER_TIMEOUT_US = 5000 * 1000; // 10 seconds in microseconds
+static constexpr auto TIMER_TIMEOUT_US = 10000 * 1000; // 10 seconds in microseconds
 
 UiPredictionState::UiPredictionState(std::shared_ptr<Button> m_button,
                                      std::shared_ptr<SPIFlash> data_partition,
                                      std::shared_ptr<NVStorage> storage)
     : m_button(m_button)
-    , m_prediction_reader(data_partition, storage)
-{
-    // Initialize the timer for prediction updates
+    , m_prediction_reader(data_partition, storage) {
+    // Initialize the timer that switches back to the main screen
+    // after a timeout if the button is not pressed to switch off
     esp_timer_create_args_t timer_args = {};
     timer_args.callback = &UiPredictionState::timer_callback;
     timer_args.name = "PredictionOffTimer";
@@ -24,8 +24,7 @@ UiPredictionState::UiPredictionState(std::shared_ptr<Button> m_button,
     ESP_ERROR_CHECK(esp_timer_create(&timer_args, &m_timer));
 }
 
-bool UiPredictionState::enter()
-{
+bool UiPredictionState::enter() {
     auto prediction = m_prediction_reader.read_prediction();
     m_button->register_callback(BUTTON_PRESS_DOWN, [this]() {
         switch_off();
@@ -50,8 +49,7 @@ bool UiPredictionState::enter()
     return true;
 }
 
-void UiPredictionState::exit()
-{
+void UiPredictionState::exit() {
     if (m_timer) {
         esp_timer_stop(m_timer);
     }

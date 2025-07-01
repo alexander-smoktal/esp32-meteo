@@ -2,7 +2,7 @@
 
 #include "state_manager.h"
 
-const char *state_id_to_string(StateId state_id){
+const char *state_id_to_string(StateId state_id) {
     switch (state_id) {
         case StateId::Init: return "Init";
         case StateId::Connected: return "Connected";

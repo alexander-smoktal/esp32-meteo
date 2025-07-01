@@ -7,6 +7,14 @@
 
 #include "iwifi_connector.h"
 
+/* A convenient wrapper for WiFI routines.
+   Helps to:
+   - Scan for available networks.
+   - Test temporary credentials when provisioning.
+   - Connect station.
+   - Start access point.
+   Is intended be able to switch between states seamlessly.
+*/
 class WiFiManager: public IWiFiConnector
 {
 public:
@@ -26,6 +34,7 @@ private:
     void start_dhcp();
     void stop_dhcp();
 
+    // The modes mainly help to prevent reconnecting to WiFi if already connected
     enum class CurrentMode {
         Station,
         AccessPoint,

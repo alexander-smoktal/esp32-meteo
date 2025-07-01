@@ -8,6 +8,7 @@
 
 #include "lvgl/lvgl.h"
 
+// Show prediction screen
 class UiPredictionState : public State {
 public:
     UiPredictionState(std::shared_ptr<Button> button,

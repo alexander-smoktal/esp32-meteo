@@ -12,8 +12,7 @@
 static const char *TAG = "SPIFlash";
 
 SPIFlash::SPIFlash(const std::string &mount_path, const std::string &partition_name)
-    : m_mount_path(mount_path)
-{
+    : m_mount_path(mount_path) {
     ESP_LOGI(TAG, "Mounting SPI Flash partition %s at: %s", partition_name.c_str(), mount_path.c_str());
 
     esp_vfs_fat_mount_config_t mount_config{};
@@ -26,13 +25,11 @@ SPIFlash::SPIFlash(const std::string &mount_path, const std::string &partition_n
     ESP_ERROR_CHECK(err);
 }
 
-SPIFlash::~SPIFlash()
-{
+SPIFlash::~SPIFlash() {
     esp_vfs_fat_spiflash_unmount_rw_wl(m_mount_path.c_str(), wl_handle);
 }
 
-std::fstream SPIFlash::open_file(const std::string& path, std::fstream::openmode open_mode)
-{
+std::fstream SPIFlash::open_file(const std::string &path, std::fstream::openmode open_mode) {
     std::string true_path = m_mount_path;
     true_path.append("/");
     true_path.append(path);
@@ -42,8 +39,7 @@ std::fstream SPIFlash::open_file(const std::string& path, std::fstream::openmode
     std::fstream fs;
     fs.open(true_path, open_mode);
 
-    if (!fs.good())
-    {
+    if (!fs.good()) {
         ESP_LOGI(TAG, "Failed to open file at: %s", true_path.c_str());
     }
 

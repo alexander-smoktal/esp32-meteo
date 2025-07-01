@@ -15,8 +15,7 @@ static void sync_cb(struct timeval *tv) {
     ESP_LOGI(TAG, "Time update: %02d:%02d:%02d", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
 }
 
-NtpUpdater::NtpUpdater(std::shared_ptr<NVStorage> storage)
-{
+NtpUpdater::NtpUpdater(std::shared_ptr<NVStorage> storage) {
     ESP_LOGI(TAG, "Initializing NTP Updater");
 
     if (storage->has_key("time_zone")) {
@@ -40,8 +39,7 @@ NtpUpdater::NtpUpdater(std::shared_ptr<NVStorage> storage)
 
 // Note: Netif SNTP server will react to new IP events, so we don't need to handle them manually here.
 // This code is a stup if need manual updating
-bool NtpUpdater::execute()
-{
+bool NtpUpdater::execute() {
     ESP_LOGI(TAG, "Updating NTP time");
 
     // Start SNTP

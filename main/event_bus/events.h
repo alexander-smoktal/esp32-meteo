@@ -6,6 +6,7 @@
 #include "nv_storage.h"
 #include "spi_flash.h"
 
+// Event system initalizer
 class Events {
 public:
     Events(std::shared_ptr<NVStorage> storage);

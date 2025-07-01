@@ -6,8 +6,7 @@
 
 static constexpr auto TAG = "ConnectedState";
 
-bool ConnectedState::enter()
-{
+bool ConnectedState::enter() {
     ESP_LOGI(TAG, "Entering Connected state");
     m_wifi_manager->start_station();
     m_events->init_workers();
@@ -15,6 +14,5 @@ bool ConnectedState::enter()
     return true;
 }
 
-void ConnectedState::exit()
-{
+void ConnectedState::exit() {
 }

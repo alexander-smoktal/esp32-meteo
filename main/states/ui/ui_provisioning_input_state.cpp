@@ -4,10 +4,8 @@
 
 #include "ui/globals.h"
 
-bool UiProvisioningInputState::enter()
-{
-    if (s_provisioning_screen == nullptr)
-    {
+bool UiProvisioningInputState::enter() {
+    if (s_provisioning_screen == nullptr) {
         s_provisioning_screen = provisioning_screen_create();
     }
 
@@ -26,6 +24,5 @@ bool UiProvisioningInputState::enter()
     return true;
 }
 
-void UiProvisioningInputState::exit()
-{
+void UiProvisioningInputState::exit() {
 }

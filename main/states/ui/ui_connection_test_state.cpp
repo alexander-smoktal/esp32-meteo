@@ -4,8 +4,7 @@
 
 #include "ui/globals.h"
 
-bool UiConnectionTestState::enter()
-{
+bool UiConnectionTestState::enter() {
     assert(s_provisioning_screen != nullptr);
 
     auto container = lv_obj_get_child(s_provisioning_screen, 0);
@@ -26,6 +25,5 @@ bool UiConnectionTestState::enter()
     return true;
 }
 
-void UiConnectionTestState::exit()
-{
+void UiConnectionTestState::exit() {
 }

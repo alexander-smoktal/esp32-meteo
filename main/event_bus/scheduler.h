@@ -30,18 +30,24 @@ private:
     std::shared_ptr<NVStorage> m_database;
 };
 
+/* A scheduler that executes tasks at specified intervals starting from
+   the beggining of the day. Uses NVS to read cached data when starting up if
+   task is not yet to be executed.
+   Starts FreeRTOS task that runs in a loop and executes tasks which allows
+   to create long-running tasks without blocking the scheduler.
+*/
 class Scheduler {
     struct TaskEntry {
-        std::shared_ptr<Task> task;
-        std::string name;
-        size_t frequency_secs;
-        size_t last_execution_num;
-        TaskHandle_t task_handle;
+        std::shared_ptr<Task> task; // The task to be executed
+        std::string name;           // The name of the task
+        size_t frequency_secs;      // Frequency in seconds from the beginning of the day
+        size_t last_execution_num;  // The last execution number of the task
+        TaskHandle_t task_handle;   // The FreeRTOS task handle for the task
     };
 
 public:
     Scheduler(std::shared_ptr<NVStorage> db);
-    static void taskLoop(void* context);
+    static void task_loop(void *context);
 
     void add_task(std::shared_ptr<Task> task, const std::string& name, size_t frequency_secs);
     void stop();

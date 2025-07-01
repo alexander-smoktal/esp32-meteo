@@ -8,10 +8,12 @@
 
 class StateManager;
 
+/* State subsystems that has a bunch of states.
+   When requested, tries to change the satet. If a given subsystem
+   doesn't have a state for the StateId, remains on the current state.
+*/
 class StateSubsystem {
 public:
-    using Pointer = std::shared_ptr<StateSubsystem>;
-
     StateSubsystem(std::shared_ptr<StateManager> manager, int priority, const std::string &&name)
         : m_priority(priority)
         , m_name(std::move(name))

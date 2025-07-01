@@ -34,30 +34,28 @@ static constexpr auto PIN_NUM_DC = GPIO_NUM_11;
 static constexpr auto PIN_NUM_CS = GPIO_NUM_12;
 static constexpr auto PIN_NUM_MOSI = GPIO_NUM_13;
 
-static const sh8601_lcd_init_cmd_t lcd_init_cmds[] =
-    {
-        {0x36, (uint8_t[]){0x70}, 1, 0},
-        {0xb2, (uint8_t[]){0x0c, 0x0c, 0x00, 0x33, 0x33}, 5, 0},
-        {0xb7, (uint8_t[]){0x35}, 1, 0},
-        {0xbb, (uint8_t[]){0x13}, 1, 0},
-        {0xc0, (uint8_t[]){0x2c}, 1, 0},
-        {0xc2, (uint8_t[]){0x01}, 1, 0},
-        {0xc3, (uint8_t[]){0x0b}, 1, 0},
-        {0xc4, (uint8_t[]){0x20}, 1, 0},
-        {0xc6, (uint8_t[]){0x0f}, 1, 0},
-        {0xd0, (uint8_t[]){0xa4, 0xa1}, 2, 0},
-        {0xd6, (uint8_t[]){0xa1}, 1, 0},
-        {0xe0, (uint8_t[]){0x00, 0x03, 0x07, 0x08, 0x07, 0x15, 0x2A, 0x44, 0x42, 0x0A, 0x17, 0x18, 0x25, 0x27}, 14, 0},
-        {0xe1, (uint8_t[]){0x00, 0x03, 0x08, 0x07, 0x07, 0x23, 0x2A, 0x43, 0x42, 0x09, 0x18, 0x17, 0x25, 0x27}, 14, 0},
-        {0x21, (uint8_t[]){0x21}, 0, 0},
-        {0x11, (uint8_t[]){0x11}, 0, 120},
-        {0x29, (uint8_t[]){0x29}, 0, 0},
+static const sh8601_lcd_init_cmd_t lcd_init_cmds[] = {
+    {0x36, (uint8_t[]){0x70}, 1, 0},
+    {0xb2, (uint8_t[]){0x0c, 0x0c, 0x00, 0x33, 0x33}, 5, 0},
+    {0xb7, (uint8_t[]){0x35}, 1, 0},
+    {0xbb, (uint8_t[]){0x13}, 1, 0},
+    {0xc0, (uint8_t[]){0x2c}, 1, 0},
+    {0xc2, (uint8_t[]){0x01}, 1, 0},
+    {0xc3, (uint8_t[]){0x0b}, 1, 0},
+    {0xc4, (uint8_t[]){0x20}, 1, 0},
+    {0xc6, (uint8_t[]){0x0f}, 1, 0},
+    {0xd0, (uint8_t[]){0xa4, 0xa1}, 2, 0},
+    {0xd6, (uint8_t[]){0xa1}, 1, 0},
+    {0xe0, (uint8_t[]){0x00, 0x03, 0x07, 0x08, 0x07, 0x15, 0x2A, 0x44, 0x42, 0x0A, 0x17, 0x18, 0x25, 0x27}, 14, 0},
+    {0xe1, (uint8_t[]){0x00, 0x03, 0x08, 0x07, 0x07, 0x23, 0x2A, 0x43, 0x42, 0x09, 0x18, 0x17, 0x25, 0x27}, 14, 0},
+    {0x21, (uint8_t[]){0x21}, 0, 0},
+    {0x11, (uint8_t[]){0x11}, 0, 120},
+    {0x29, (uint8_t[]){0x29}, 0, 0},
 };
 
 esp_err_t swap_xy_stub(esp_lcd_panel_t *panel, bool swap_axes) { return ESP_OK; }
 
-Display::Display()
-{
+Display::Display() {
     lvgl_port_cfg_t lvgl_cfg = ESP_LVGL_PORT_INIT_CONFIG();
     lvgl_cfg.task_priority = 1;
     lvgl_cfg.task_stack = 16384;
@@ -132,13 +130,11 @@ Display::Display()
     vTaskDelay(splash_anim_ms / portTICK_PERIOD_MS);
 }
 
-void Display::start_splash()
-{
+void Display::start_splash() {
     ui_init("F:/");
     auto splash_screen = splash_screen_create();
 
-    if (lvgl_port_lock(-1))
-    {
+    if (lvgl_port_lock(-1)) {
         lv_obj_set_style_bg_color(lv_screen_active(), lv_color_black(), 0);
         lv_screen_load_anim(splash_screen, LV_SCR_LOAD_ANIM_FADE_OUT, splash_anim_ms, 0, true);
         lvgl_port_unlock();

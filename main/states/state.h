@@ -26,6 +26,9 @@ public:
     virtual void exit() = 0;
 
     void set_manager(std::shared_ptr<StateManager> state_manager);
+
+    // Switches to a new state using the state manager.
+    // Can be used inside the active state safely.
     void switch_to(StateId state);
 
 private:

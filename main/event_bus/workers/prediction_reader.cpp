@@ -1,9 +1,12 @@
 #include "prediction_reader.h"
+
+#include <string>
+
 #include "esp_random.h"
 #include "esp_log.h"
 #include "esp_timer.h"
-#include "../event_bus.h"
-#include <string>
+#include "event_bus/event_bus.h"
+#include "common.h"
 
 static constexpr auto TAG = "PredictionReader";
 
@@ -42,8 +45,7 @@ std::string PredictionReader::read_prediction() {
     ESP_LOGI(TAG, "Random prediction: %s", selected_prediction.c_str());
     ESP_LOGI(TAG, "Time to find prediction: %.2f ms", elapsed_ms);
 
-    auto owner_name = m_storage->get_string("owner_name");
+    auto owner_name = m_storage->get_string(NVS_OWNER_NAME_KEY);
 
     return owner_name + ", " + selected_prediction;
-    // EventBus::get_instance().pubish(EventBusEvent::PredictionEvent, selected_prediction.c_str(), selected_prediction.length() + 1);
 }

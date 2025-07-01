@@ -6,12 +6,11 @@
 
 static constexpr auto TAG = "ConnectionTestState";
 
-bool ConnectionTestState::enter()
-{
+bool ConnectionTestState::enter() {
     ESP_LOGI(TAG, "Entering Connection Test state");
 
-    const auto ssid = m_storage->get_string(s_temp_ssid_key);
-    const auto password = m_storage->get_string(s_temp_password_key);
+    const auto ssid = m_storage->get_string(NVS_TEMP_SSID_KEY);
+    const auto password = m_storage->get_string(NVS_TEMP_PASSWORD_KEY);
 
     if (m_wifi_manager->test_connection(ssid, password)) {
         ESP_LOGI(TAG, "Connection test succeeded with SSID: %s", ssid.c_str());
@@ -31,6 +30,5 @@ bool ConnectionTestState::enter()
     return true; // Indicate that the state was entered successfully
 }
 
-void ConnectionTestState::exit()
-{
+void ConnectionTestState::exit() {
 }

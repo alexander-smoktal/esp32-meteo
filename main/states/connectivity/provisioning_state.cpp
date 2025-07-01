@@ -41,11 +41,11 @@ void ProvisioningState::credentials_callback(const Credentials &credentials) {
         if (key == "wifi_ssid") {
             ESP_LOGI(TAG, "Setting temporary WiFi SSID: %s", value.c_str());
 
-            m_storage->set_string(s_temp_ssid_key, value);
+            m_storage->set_string(NVS_TEMP_SSID_KEY, value);
         } else if (key == "wifi_password") {
             ESP_LOGI(TAG, "Setting temporary WiFi Password: %s", value.c_str());
 
-            m_storage->set_string(s_temp_password_key, value);
+            m_storage->set_string(NVS_TEMP_PASSWORD_KEY, value);
         } else {
             ESP_LOGI(TAG, "Setting credential: %s = %s", key.c_str(), value.c_str());
 

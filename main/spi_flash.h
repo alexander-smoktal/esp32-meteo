@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 
+/* SPI flash partition wrapper */
 class SPIFlash
 {
 public:

@@ -38,8 +38,8 @@ extern "C" void app_main(void)
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     auto data_partition = std::make_shared<SPIFlash>("/data", "data");
-    auto images_flash = std::make_shared<SPIFlash>("/images", "images");
-    auto http_static = std::make_shared<SPIFlash>("/static", "static");
+    auto images_partition = std::make_shared<SPIFlash>("/images", "images");
+    auto http_static_partition = std::make_shared<SPIFlash>("/static", "static");
 
     auto storage = std::make_shared<NVStorage>();
     auto state_manager = std::make_shared<StateManager>();
@@ -51,7 +51,7 @@ extern "C" void app_main(void)
     auto button = std::make_shared<Button>();
     // storage->erase();
 
-    state_manager->registerStates(http_static, data_partition, storage, wifi_manager, events, button);
+    state_manager->registerStates(http_static_partition, data_partition, storage, wifi_manager, events, button);
 
     vTaskDelay(2000 / portTICK_PERIOD_MS);
     if (wifi_manager->has_credentials()) {

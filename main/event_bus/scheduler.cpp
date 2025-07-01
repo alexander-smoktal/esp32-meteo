@@ -84,7 +84,7 @@ void Scheduler::add_task(std::shared_ptr<Task> task, const std::string& name, si
     // We create FreeRTOS task for each scheduler task so internal tasks wouldn't block each other.
     // This allows performing long running tasks without additional complexity.
     TaskHandle_t rtos_task_handle = nullptr;
-    if (xTaskCreate(&Scheduler::taskLoop, name.c_str(), 4196, task.get(), 3, &rtos_task_handle) != pdPASS) {
+    if (xTaskCreate(&Scheduler::task_loop, name.c_str(), 4196, task.get(), 3, &rtos_task_handle) != pdPASS) {
         ESP_LOGW(TAG, "Failed to create task for %s", name.c_str());
         return;
     }
@@ -126,7 +126,8 @@ void Scheduler::tick(void* scheduler) {
     }
 }
 
-void Scheduler::taskLoop(void* context) {
+void Scheduler::task_loop(void *context)
+{
     auto task = static_cast<Task*>(context);
     while (true) {
         xTaskNotifyWait(0, 0, nullptr, portMAX_DELAY);

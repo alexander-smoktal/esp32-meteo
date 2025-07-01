@@ -4,8 +4,7 @@
 
 #include "ui/globals.h"
 
-bool UiConnectedState::enter()
-{
+bool UiConnectedState::enter() {
     assert(s_provisioning_screen != nullptr);
 
     auto container = lv_obj_get_child(s_provisioning_screen, 0);
@@ -14,8 +13,7 @@ bool UiConnectedState::enter()
     auto conn_test_image = lv_obj_get_child(container, 1);
     auto completed_image = lv_obj_get_child(container, 2);
 
-    if (lvgl_port_lock(-1))
-    {
+    if (lvgl_port_lock(-1)) {
         lv_obj_set_style_opa(input_image, LV_OPA_40, 0);
         lv_obj_set_style_opa(conn_test_image, LV_OPA_40, 0);
         lv_obj_set_style_opa(completed_image, LV_OPA_100, 0);
@@ -30,7 +28,6 @@ bool UiConnectedState::enter()
     return true;
 }
 
-void UiConnectedState::exit()
-{
+void UiConnectedState::exit() {
     s_provisioning_screen = nullptr;
 }

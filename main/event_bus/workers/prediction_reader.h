@@ -5,6 +5,7 @@
 #include "spi_flash.h"
 #include "nv_storage.h"
 
+// Reads a random prediction from the flash storage.
 class PredictionReader {
 public:
     PredictionReader(std::shared_ptr<SPIFlash> data_partition, std::shared_ptr<NVStorage> storage)

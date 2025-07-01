@@ -56,6 +56,7 @@ std::string NVStorage::get_string(const std::string &key) {
 
 void NVStorage::set_string(const std::string &key, const std::string &value) {
     assert(value.length() < s_max_value_length);
+
     ESP_LOGV(TAG, "Writing value for key: %s, value: %s", key.c_str(), value.c_str());
 
     ESP_ERROR_CHECK(nvs_set_str(m_nvs_handle, key.c_str(), value.c_str()));

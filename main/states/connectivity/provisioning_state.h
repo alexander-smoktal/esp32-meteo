@@ -10,6 +10,11 @@
 #include "wifi/wifi_manager.h"
 #include "spi_flash.h"
 
+// WiFi provisioning state.
+// This state starts an access point and HTTP server to collect WiFi credentials.
+// It uses the HttpServer class to handle HTTP requests and serve a form for entering credentials.
+// After the credentials are collected, it saves them to non-volatile storage and switches to the
+// connection test state to verify the connection to the WiFi network.
 class ProvisioningState : public State {
 public:
     ProvisioningState(std::shared_ptr<SPIFlash> spi_flash,

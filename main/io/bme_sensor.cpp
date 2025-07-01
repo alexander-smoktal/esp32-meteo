@@ -11,8 +11,7 @@ static constexpr auto I2C_MASTER_FREQ_HZ = 100000;     /*!< I2C master clock fre
 
 static constexpr auto I2C_MASTER_NUM  = I2C_NUM_0;   /*!< I2C port number for master dev */
 
-BME280Sensor::BME280Sensor()
-{
+BME280Sensor::BME280Sensor() {
     i2c_master_bus_config_t i2c_mst_config = {};
     i2c_mst_config.clk_source = I2C_CLK_SRC_DEFAULT;
     i2c_mst_config.i2c_port = I2C_MASTER_NUM;
@@ -44,36 +43,30 @@ BME280Sensor::BME280Sensor()
     ESP_ERROR_CHECK(bme280_default_init(m_bme280));
 }
 
-BME280Sensor::~BME280Sensor()
-{
+BME280Sensor::~BME280Sensor() {
     // Cleanup resources
-    if (m_bme280)
-    {
+    if (m_bme280) {
         bme280_delete(&m_bme280);
     }
 
-    if (m_i2c_bus)
-    {
+    if (m_i2c_bus) {
         i2c_bus_delete(&m_i2c_bus);
     }
 }
 
-float BME280Sensor::read_temperature()
-{
+float BME280Sensor::read_temperature() {
     float temperature = 0.0;
     bme280_read_temperature(m_bme280, &temperature);
     return temperature;
 }
 
-float BME280Sensor::read_humidity()
-{
+float BME280Sensor::read_humidity() {
     float humidity = 0.0;
     bme280_read_humidity(m_bme280, &humidity);
     return humidity;
 }
 
-float BME280Sensor::read_pressure()
-{
+float BME280Sensor::read_pressure() {
     float pressure = 0.0;
     bme280_read_pressure(m_bme280, &pressure);
     return pressure;

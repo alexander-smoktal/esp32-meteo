@@ -6,6 +6,7 @@
 #include "mbedtls/base64.h"
 
 #include "esp_log.h"
+#include "common.h"
 
 static constexpr size_t BASE64_LENGTH = 128;
 
@@ -37,6 +38,8 @@ void HttpServer::start() {
         .user_ctx  = this
     };
 
+    // A handler to return headers for the index page
+    // Used to prefill the form with data from NVS
     const httpd_uri_t index_head = {
         .uri       = "/",
         .method    = HTTP_HEAD,
@@ -144,10 +147,10 @@ esp_err_t HttpServer::index_head(httpd_req_t *req) {
 
     httpd_resp_set_type(req, "text/html");
 
-    set_encoded_header("owner_name");
-    set_encoded_header("weath_api_token");
-    set_encoded_header("weath_city");
-    set_encoded_header("time_zone");
+    set_encoded_header(NVS_WEATHER_API_TOKEN_KEY);
+    set_encoded_header(NVS_WEATHER_CITY_KEY);
+    set_encoded_header(NVS_OWNER_NAME_KEY);
+    set_encoded_header(NVS_TIMEZONE_KEY);
 
     for (const auto &header : headers) {
         httpd_resp_set_hdr(req, header.first.c_str(), header.second.c_str());

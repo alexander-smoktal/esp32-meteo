@@ -25,6 +25,7 @@ namespace
 {
     EventGroupHandle_t s_wifi_event_group = nullptr;
 
+    // When scanning for available networks
     static void scan_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data) {
         if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
             xEventGroupSetBits(s_wifi_event_group, WIFI_SCAN_BIT);
@@ -33,9 +34,9 @@ namespace
         ESP_LOGI(TAG, "Scan event handler called with base: %s, id: %ld", event_base, event_id);
     }
 
+    // Blocks and waits to connect when testing temporary credentials when provisioning
     static void blocking_event_handler(void *arg, esp_event_base_t event_base,
-                                       int32_t event_id, void *event_data)
-    {
+                                       int32_t event_id, void *event_data) {
         if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
             esp_wifi_connect();
         } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
@@ -48,15 +49,12 @@ namespace
         }
     }
 
+    // Station handler that reconnects when disconnected
     static void async_event_handler(void *arg, esp_event_base_t event_base,
-                                    int32_t event_id, void *event_data)
-    {
-        if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
-        {
+                                    int32_t event_id, void *event_data) {
+        if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
             esp_wifi_connect();
-        }
-        else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
-        {
+        } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
             vTaskDelay(3000 / portTICK_PERIOD_MS);
             esp_wifi_connect();
             ESP_LOGI(TAG, "WiFi connection lost. Trying to reconnect");
@@ -68,8 +66,7 @@ namespace
     }
 }
 
-WiFiManager::WiFiManager(std::shared_ptr<NVStorage> storage) : m_storage(std::move(storage))
-{
+WiFiManager::WiFiManager(std::shared_ptr<NVStorage> storage) : m_storage(std::move(storage)) {
     s_wifi_event_group = xEventGroupCreate();
 
     const wifi_init_config_t wifi_init_config = WIFI_INIT_CONFIG_DEFAULT();
@@ -82,17 +79,14 @@ WiFiManager::WiFiManager(std::shared_ptr<NVStorage> storage) : m_storage(std::mo
                     &m_ip_event_handler));
 }
 
-WiFiManager::~WiFiManager()
-{
+WiFiManager::~WiFiManager() {
     esp_wifi_stop();
 
-    if (m_wifi_sta_interface)
-    {
+    if (m_wifi_sta_interface) {
         esp_netif_destroy_default_wifi(m_wifi_sta_interface);
     }
 
-    if (m_wifi_ap_interface)
-    {
+    if (m_wifi_ap_interface) {
         esp_netif_destroy_default_wifi(m_wifi_ap_interface);
     }
 }
@@ -109,16 +103,14 @@ void WiFiManager::start_station() {
 
     esp_wifi_stop();
 
-    if (m_wifi_ap_interface)
-    {
+    if (m_wifi_ap_interface) {
         stop_dhcp();
         esp_wifi_set_mode(WIFI_MODE_STA);
 
         esp_netif_destroy_default_wifi(m_wifi_ap_interface);
     }
 
-    if (!m_wifi_sta_interface)
-    {
+    if (!m_wifi_sta_interface) {
         m_wifi_sta_interface = esp_netif_create_default_wifi_sta();
     }
 
@@ -133,8 +125,7 @@ void WiFiManager::start_station() {
 
     auto ssid = m_storage->get_string(s_wifi_ssid_key);
     auto password = m_storage->get_string(s_wifi_password_key);
-    if (ssid.empty() || password.empty())
-    {
+    if (ssid.empty() || password.empty()) {
         ESP_LOGE(TAG, "No WiFi credentials found");
         return;
     }
@@ -193,8 +184,7 @@ void WiFiManager::set_credentials(const std::string &ssid, const std::string &pa
     m_storage->set_string(s_wifi_password_key, password);
 }
 
-bool WiFiManager::has_credentials() const
-{
+bool WiFiManager::has_credentials() const {
     return m_storage->has_key(s_wifi_ssid_key) && m_storage->has_key(s_wifi_password_key);
 }
 
@@ -264,7 +254,6 @@ IWiFiConnector::EndpointsList WiFiManager::get_endpoints() {
         m_wifi_event_handler = nullptr;
     }
 
-    // ESP_ERROR_CHECK(esp_wifi_disconnect());
     ESP_ERROR_CHECK(esp_wifi_stop());
 
     auto rssi_to_quality = [](int8_t rssi) -> int {
@@ -280,8 +269,7 @@ IWiFiConnector::EndpointsList WiFiManager::get_endpoints() {
                                                         nullptr,
                                                         &instance_any_id));
 
-    if (!m_wifi_sta_interface)
-    {
+    if (!m_wifi_sta_interface) {
         m_wifi_sta_interface = esp_netif_create_default_wifi_sta();
     }
 

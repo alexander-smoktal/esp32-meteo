@@ -6,6 +6,9 @@
 
 #include "nvs.h"
 
+/* An NVS storage wrapper.
+   Used by many components to store non-volatile data
+*/
 class NVStorage {
 public:
     NVStorage();

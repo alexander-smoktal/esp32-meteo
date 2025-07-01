@@ -9,6 +9,10 @@
 #include "wifi/wifi_manager.h"
 #include "event_bus/events.h"
 
+// Connection test state.
+// This state tests the connection to the WiFi network using the provided credentials.
+// It is used after the provisioning state to ensure that the device can connect to the network.
+// If the connection is successful, it transitions to the connected state.
 class ConnectionTestState : public State {
 public:
     ConnectionTestState(std::shared_ptr<NVStorage> storage,

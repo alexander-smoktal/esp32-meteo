@@ -9,6 +9,7 @@
 #include "../event_bus_c.h"
 #include "../scheduler.h"
 
+// Fetches current weather for AccuWeather API and publishes it into the event bus.
 class WeatherFetcher : public Task {
 public:
     WeatherFetcher(std::shared_ptr<NVStorage> storage): m_storage(std::move(storage)) {}

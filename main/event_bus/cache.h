@@ -7,6 +7,7 @@
 
 #include "nv_storage.h"
 
+// Event bus data cache.
 class Cache {
 public:
     Cache(std::shared_ptr<NVStorage> data_storage)

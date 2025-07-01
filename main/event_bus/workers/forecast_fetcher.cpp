@@ -43,8 +43,7 @@ static void event_handler(void *arg, esp_event_base_t event_base,
     }
 }
 
-namespace
-{
+namespace {
     WeatherIconType icon_to_type(int icon) {
         switch (icon) {
         case 1:
@@ -113,8 +112,7 @@ bool ForecastFetcher::execute() {
     ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, nullptr, nullptr));
 
     wifi_ap_record_t ap_info;
-    if (esp_wifi_sta_get_ap_info(&ap_info) != ESP_OK)
-    {
+    if (esp_wifi_sta_get_ap_info(&ap_info) != ESP_OK) {
         ESP_LOGI(TAG, "WiFi is not connected. Waiting for connection before fetching forecast.");
         // Note: We don't clear the bits for further invokation
         xEventGroupWaitBits(s_wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
@@ -122,8 +120,8 @@ bool ForecastFetcher::execute() {
 
     ESP_LOGI(TAG, "Fetching forecast");
 
-    auto path = "/forecasts/v1/daily/5day/" + m_storage->get_string(s_weather_city_code);
-    std::string query = "apikey=" + m_storage->get_string(s_weather_api_token) + "&metric=true";
+    auto path = "/forecasts/v1/daily/5day/" + m_storage->get_string(NVS_WEATHER_CITY_KEY);
+    std::string query = "apikey=" + m_storage->get_string(NVS_WEATHER_API_TOKEN_KEY) + "&metric=true";
 
     esp_http_client_config_t config = {};
     config.host = "dataservice.accuweather.com";
@@ -181,8 +179,8 @@ bool ForecastFetcher::parse_forecast_json(const char *json, int len, WeatherFore
     CHECK_PARSE(json_obj_get_array(&jctx, "DailyForecasts", &num_elem), "DailyForecasts");
 
     size_t element_counter = 0;
-    for (uint32_t i = 0; i < 5; ++i)
-    {
+    // There's always 5 elements in the array, so we can safely iterate over them
+    for (uint32_t i = 0; i < 5; ++i) {
         CHECK_PARSE(json_arr_get_object(&jctx, i), "PredArray");
 
         int64_t timestamp = 0;
@@ -243,15 +241,13 @@ bool ForecastFetcher::parse_forecast_json(const char *json, int len, WeatherFore
     return true;
 }
 
-esp_err_t ForecastFetcher::http_event_handler(esp_http_client_event_t *evt)
-{
+esp_err_t ForecastFetcher::http_event_handler(esp_http_client_event_t *evt) {
     static char *output_buffer; // Buffer to store response of http request from event handler
     static int output_len;      // Stores number of bytes read
     int mbedtls_err = 0;
     esp_err_t err = ESP_OK;
 
-    switch (evt->event_id)
-    {
+    switch (evt->event_id) {
     case HTTP_EVENT_ERROR:
         ESP_LOGD(TAG, "HTTP_EVENT_ERROR");
         break;

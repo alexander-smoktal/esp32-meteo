@@ -126,8 +126,8 @@ bool WeatherFetcher::execute()
 
     ESP_LOGI(TAG, "Fetching weather");
 
-    auto path = "/currentconditions/v1/" + m_storage->get_string(s_weather_city_code);
-    auto query = "apikey=" + m_storage->get_string(s_weather_api_token) + "&details=true";
+    auto path = "/currentconditions/v1/" + m_storage->get_string(NVS_WEATHER_CITY_KEY);
+    auto query = "apikey=" + m_storage->get_string(NVS_WEATHER_API_TOKEN_KEY) + "&details=true";
 
     esp_http_client_config_t config = {};
     config.host = "dataservice.accuweather.com";
