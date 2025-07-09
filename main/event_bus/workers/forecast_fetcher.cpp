@@ -2,6 +2,10 @@
 
 #include <algorithm>
 #include <ctime>
+#include <iomanip>
+#include <iostream>
+#include <locale>
+#include <sstream>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
@@ -171,6 +175,9 @@ bool ForecastFetcher::parse_forecast_json(const char *json, int len, WeatherFore
     time_t now{};
     time(&now);
 
+    tm now_timeinfo = {};
+    localtime_r(&now, &now_timeinfo);
+
     jparse_ctx_t jctx;
 
     CHECK_PARSE(json_parse_start(&jctx, json, len), "root");
@@ -183,24 +190,35 @@ bool ForecastFetcher::parse_forecast_json(const char *json, int len, WeatherFore
     for (uint32_t i = 0; i < 5; ++i) {
         CHECK_PARSE(json_arr_get_object(&jctx, i), "PredArray");
 
-        int64_t timestamp = 0;
-        CHECK_PARSE(json_obj_get_int64(&jctx, "EpochDate", &timestamp), "EpochDate");
+        // We need to parse the date to skip today's forecast. We only want future forecasts.
+        // Note: The date is in ISO 8601 format, so we can use std::get_time to parse it
+        std::string date_time_str{};
+        date_time_str.resize(30); // 2025-07-09T07:00:00+03:00
+        CHECK_PARSE(json_obj_get_string(&jctx, "Date", date_time_str.data(), date_time_str.size()), "Date");
 
-        // The API returns 4 A.M., so we need to adjust the timestamp to the start of the day
-        // (Because user always think about the next day as the one starting at 0:00).
-        // Plus, we add out timezone shift.
-        timestamp -= 4 * 3600;
-        timestamp += _timezone;
+        tm forecast_timeinfo = {};
+        std::istringstream ss(date_time_str);
+        // Parse the string using the format specifier
+        ss >> std::get_time(&forecast_timeinfo, "%Y-%m-%dT%H:%M:%S");
 
-        if (timestamp < now)
+        // Forecast contains data for today too. We skip it
+        if (forecast_timeinfo.tm_mday <= now_timeinfo.tm_mday)
         {
-            ESP_LOGI(TAG, "Skipping forecast entry: Now: %lld. Ts: %lld", now, timestamp);
+            ESP_LOGI(TAG, "Skipping forecast entry: Now: %02d-%02d-%04d %02d:%02d:%02d. Ts: %02d-%02d-%04d %02d:%02d:%02d",
+                     now_timeinfo.tm_mday, now_timeinfo.tm_mon + 1, now_timeinfo.tm_year + 1900,
+                     now_timeinfo.tm_hour, now_timeinfo.tm_min, now_timeinfo.tm_sec,
+                     forecast_timeinfo.tm_mday, forecast_timeinfo.tm_mon + 1, forecast_timeinfo.tm_year + 1900,
+                     forecast_timeinfo.tm_hour, forecast_timeinfo.tm_min, forecast_timeinfo.tm_sec);
             json_arr_leave_object(&jctx);
             continue;
         }
         else
         {
-            ESP_LOGI(TAG, "Adding forecast entry: Now: %lld. Ts: %lld", now, timestamp);
+            ESP_LOGI(TAG, "Adding forecast entry: Now: %02d-%02d-%04d %02d:%02d:%02d. Ts: %02d-%02d-%04d %02d:%02d:%02d",
+                     now_timeinfo.tm_mday, now_timeinfo.tm_mon + 1, now_timeinfo.tm_year + 1900,
+                     now_timeinfo.tm_hour, now_timeinfo.tm_min, now_timeinfo.tm_sec,
+                     forecast_timeinfo.tm_mday, forecast_timeinfo.tm_mon + 1, forecast_timeinfo.tm_year + 1900,
+                     forecast_timeinfo.tm_hour, forecast_timeinfo.tm_min, forecast_timeinfo.tm_sec);
         }
 
         CHECK_PARSE(json_obj_get_object(&jctx, "Temperature"), "Temperature");

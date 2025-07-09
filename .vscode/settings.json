@@ -121,7 +121,9 @@
     "string.h": "c",
     "ft2build.h": "c",
     "button_types.h": "c",
-    "button_interface.h": "c"
+    "button_interface.h": "c",
+    "timespec.h": "c",
+    "_locale.h": "c"
   },
   "idf.flashType": "UART",
   "python.autoComplete.extraPaths": [
