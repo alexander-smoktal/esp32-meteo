@@ -94,7 +94,7 @@
 
                     <!-- Weather API Token -->
                     <div class="mb-3">
-                        <label for="weath_api_token" class="form-label">Accuweather API Токен</label>
+                        <label for="weath_api_token" class="form-label">OpenWeather API Токен</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-cloud-sun"></i></span>
                             <input type="text" class="form-control" id="weath_api_token" name="weath_api_token" required>
@@ -106,14 +106,22 @@
 
                     <!-- Weather city -->
                     <div class="mb-3">
-                        <label for="weath_city" class="form-label">Accuweather ID міста</label>
+                        <label for="weath_city" class="form-label">Назва міста</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-building"></i></span>
                             <input type="text" class="form-control" id="weath_city" name="weath_city" required>
                             <div class="invalid-feedback">
-                                Будь ласка, введіть ID вашого міста.
+                                Будь ласка, введіть назву вашого міста.
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Check API Configuration -->
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-outline-secondary" id="checkApiConfig" disabled>
+                            <i class="bi bi-check2-circle"></i> Перевірити налаштування API
+                        </button>
+                        <div id="apiCheckResult" class="mt-2"></div>
                     </div>
 
                     <!-- Time zone -->
@@ -231,6 +239,98 @@
                 this.querySelector('i').classList.toggle('bi-eye');
                 this.querySelector('i').classList.toggle('bi-eye-slash');
             });
+
+            // API Configuration Check functionality
+            const checkApiButton = document.getElementById('checkApiConfig');
+            const apiTokenInput = document.getElementById('weath_api_token');
+            const cityInput = document.getElementById('weath_city');
+            const apiCheckResult = document.getElementById('apiCheckResult');
+
+            // Function to check if both fields are filled
+            function checkApiFieldsComplete() {
+                const token = apiTokenInput.value.trim();
+                const city = cityInput.value.trim();
+                checkApiButton.disabled = !(token && city);
+            }
+
+            // Add event listeners to enable/disable check button
+            apiTokenInput.addEventListener('input', checkApiFieldsComplete);
+            cityInput.addEventListener('input', checkApiFieldsComplete);
+
+            // Check API configuration
+            checkApiButton.addEventListener('click', async function () {
+                const token = apiTokenInput.value.trim();
+                const city = cityInput.value.trim();
+
+                // Show loading state
+                checkApiButton.disabled = true;
+                checkApiButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Перевіряю...';
+
+                // Clear previous result
+                apiCheckResult.innerHTML = '';
+
+                try {
+                    // Use OpenWeather Geocoding API to validate token and city
+                    const geocodingUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(city)}&limit=1&appid=${token}`;
+
+                    const response = await fetch(geocodingUrl);
+
+                    if (response.ok) {
+                        const data = await response.json();
+
+                        if (data && data.length > 0) {
+                            // Success - city found
+                            const location = data[0];
+                            apiCheckResult.innerHTML = `
+                                <div class="alert alert-success">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <strong>Успішно!</strong> Знайдено: ${location.name}${location.state ? ', ' + location.state : ''}, ${location.country}
+                                    <br><small>Координати: ${location.lat.toFixed(4)}, ${location.lon.toFixed(4)}</small>
+                                </div>
+                            `;
+                        } else {
+                            // No results found
+                            apiCheckResult.innerHTML = `
+                                <div class="alert alert-warning">
+                                    <i class="bi bi-exclamation-triangle-fill"></i>
+                                    <strong>Місто не знайдено!</strong> Перевірте правильність назви міста.
+                                </div>
+                            `;
+                        }
+                    } else if (response.status === 401) {
+                        // Invalid API key
+                        apiCheckResult.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="bi bi-x-circle-fill"></i>
+                                <strong>Невірний API токен!</strong> Перевірте правильність токена OpenWeather.
+                            </div>
+                        `;
+                    } else {
+                        // Other error
+                        apiCheckResult.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="bi bi-x-circle-fill"></i>
+                                <strong>Помилка запиту!</strong> Код помилки: ${response.status}
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    // Network or other error
+                    apiCheckResult.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-x-circle-fill"></i>
+                            <strong>Помилка мережі!</strong> ${error.message}
+                        </div>
+                    `;
+                } finally {
+                    // Reset button state
+                    checkApiButton.innerHTML = '<i class="bi bi-check2-circle"></i> Перевірити налаштування API';
+                    checkApiFieldsComplete(); // Re-enable button if fields are still filled
+                }
+            });
+
+            // Initial check on page load
+            checkApiFieldsComplete();
 
 
 
