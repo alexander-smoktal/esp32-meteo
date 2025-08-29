@@ -12,7 +12,7 @@
 // Fetches weather forecast for AccuWeather API and publishes it into the event bus.
 class ForecastFetcher : public Task {
 public:
-    ForecastFetcher(std::shared_ptr<NVStorage> storage): m_storage(std::move(storage)) {}
+    ForecastFetcher(std::shared_ptr<NVStorage> storage);
 
     bool execute() override;
 

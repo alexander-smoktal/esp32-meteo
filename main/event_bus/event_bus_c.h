@@ -28,11 +28,57 @@ enum WeatherIconType
     Fog,
     Sleet,
     Hot,
-    Cold
+    Cold,
+    Moon
 };
 
 #ifndef __cplusplus
 typedef enum WeatherIconType WeatherIconType;
+#endif
+
+#ifdef __cplusplus
+#include <string>
+
+static inline std::string to_string(WeatherIconType icon)
+{
+    switch (icon)
+    {
+    case WeatherIconType::Sunny:
+        return "Sunny";
+    case WeatherIconType::MostlyCloudy:
+        return "MostlyCloudy";
+    case WeatherIconType::Cloudy:
+        return "Cloudy";
+    case WeatherIconType::ClearMoon:
+        return "ClearMoon";
+    case WeatherIconType::CloudyMoon:
+        return "CloudyMoon";
+    case WeatherIconType::Rain:
+        return "Rain";
+    case WeatherIconType::MostlyRain:
+        return "MostlyRain";
+    case WeatherIconType::HeavyRain:
+        return "HeavyRain";
+    case WeatherIconType::Snow:
+        return "Snow";
+    case WeatherIconType::Wind:
+        return "Wind";
+    case WeatherIconType::Storm:
+        return "Storm";
+    case WeatherIconType::Fog:
+        return "Fog";
+    case WeatherIconType::Sleet:
+        return "Sleet";
+    case WeatherIconType::Hot:
+        return "Hot";
+    case WeatherIconType::Cold:
+        return "Cold";
+    case WeatherIconType::Moon:
+        return "Moon";
+    default:
+        return "Unknown";
+    }
+}
 #endif
 
 struct WeatherData {

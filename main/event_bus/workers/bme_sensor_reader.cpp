@@ -19,7 +19,7 @@ bool BmeSensorReader::execute() {
     // ESP_LOGI(TAG, "Temperature: %.4f °C, Humidity: %.4f %%, Pressure: %.4f mm",
     //     sensor_data.temperature, sensor_data.humidity, sensor_data.pressure);
 
-    EventBus::get_instance().pubish(EventBusEvent::BmeSensorEvent, &sensor_data, sizeof(sensor_data), false);
+    EventBus::get_instance().publish(EventBusEvent::BmeSensorEvent, &sensor_data, sizeof(sensor_data), false);
 
     return true;
 }

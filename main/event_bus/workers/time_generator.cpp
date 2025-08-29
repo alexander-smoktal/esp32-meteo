@@ -15,6 +15,6 @@ bool TimeGenerator::execute() {
     time_t now = time(nullptr);
     struct tm *timeinfo = localtime(&now);
 
-    EventBus::get_instance().pubish(EventBusEvent::TimeEvent, timeinfo, sizeof(*timeinfo), false);
+    EventBus::get_instance().publish(EventBusEvent::TimeEvent, timeinfo, sizeof(*timeinfo), false);
     return true;
 }

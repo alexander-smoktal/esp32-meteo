@@ -80,6 +80,8 @@ static const char *icon_to_name(int icon)
         return weather_hot_icon;
     case Cold:
         return weather_cold_icon;
+    case Moon:
+        return weather_moon_icon;
     }
 
     ESP_LOGW(TAG, "Unknown icon");

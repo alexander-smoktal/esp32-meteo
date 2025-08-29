@@ -47,7 +47,7 @@ EventBus::EventBus(std::shared_ptr<NVStorage> data_storage)
     esp_event_handler_register(EventBusBase, ESP_EVENT_ANY_ID, &EventBus::event_handler, nullptr);
 }
 
-void EventBus::pubish(EventBusEvent event, const void* data, size_t size, bool save_to_cache) {
+void EventBus::publish(EventBusEvent event, const void* data, size_t size, bool save_to_cache) {
     assert(s_instance != nullptr && "EventBus instance is not initialized");
 
     // If save_to_cache is true, save the data to cache

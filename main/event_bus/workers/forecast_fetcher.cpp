@@ -48,69 +48,65 @@ static void event_handler(void *arg, esp_event_base_t event_base,
 }
 
 namespace {
-    WeatherIconType icon_to_type(int icon) {
-        switch (icon) {
-        case 1:
-        case 2:
-        case 3:
-        case 4:
+    WeatherIconType icon_to_condition(const std::string &icon) {
+        const auto code = icon.substr(0, 2);
+
+        if (code == "01") {
             return WeatherIconType::Sunny;
-        case 33:
-        case 34:
-            return WeatherIconType::ClearMoon;
-        case 5:
-        case 6:
-        case 20:
-        case 21:
+        } else if (code == "02") {
             return WeatherIconType::MostlyCloudy;
-        case 35:
-        case 36:
-        case 37:
-            return WeatherIconType::CloudyMoon;
-        case 7:
-        case 8:
-        case 19:
-        case 38:
-            return WeatherIconType::Cloudy;
-        case 11:
-            return WeatherIconType::Fog;
-        case 12:
-            return WeatherIconType::HeavyRain;
-        case 18:
-        case 40:
-            return WeatherIconType::Rain;
-        case 13:
-        case 14:
-        case 16:
-        case 17:
-        case 39:
-            return WeatherIconType::MostlyRain;
-        case 15:
-        case 41:
-        case 42:
-            return WeatherIconType::Storm;
-        case 22:
-        case 23:
-        case 24:
-        case 43:
-        case 44:
-            return WeatherIconType::Snow;
-        case 25:
-        case 26:
-        case 29:
-            return WeatherIconType::Sleet;
-        case 32:
+        } else if (code == "03") {
             return WeatherIconType::Wind;
-        case 30:
-            return WeatherIconType::Hot;
-        case 31:
-            return WeatherIconType::Cold;
-        default:
-            ESP_LOGE(TAG, "Failed to find icon for type: %d", icon);
-            return WeatherIconType::Sunny;
+        } else if (code == "04") {
+            return WeatherIconType::Cloudy;
+        } else if (code == "09") {
+            return WeatherIconType::HeavyRain;
+        } else if (code == "10") {
+            return WeatherIconType::MostlyRain;
+        } else if (code == "11") {
+            return WeatherIconType::Storm;
+        } else if (code == "13") {
+            return WeatherIconType::Snow;
+        } else if (code == "50") {
+            return WeatherIconType::Fog;
+        }
+
+        // Default fallback
+        return WeatherIconType::Sunny;
+    }
+
+    void update_daily_forecast(WeatherForecastEntry &weather_so_far, WeatherForecastEntry new_weather)
+    {
+        static const std::unordered_map<WeatherIconType, int> condition_priority = {
+            {WeatherIconType::Moon, 1},
+            {WeatherIconType::Sunny, 1},
+            {WeatherIconType::MostlyCloudy, 2},
+            {WeatherIconType::Wind, 3},
+            {WeatherIconType::Cloudy, 4},
+            {WeatherIconType::Fog, 5},
+            {WeatherIconType::MostlyRain, 6},
+            {WeatherIconType::HeavyRain, 7},
+            {WeatherIconType::Snow, 8},
+            {WeatherIconType::Storm, 9},
+        };
+
+        weather_so_far.temp_high = std::max(weather_so_far.temp_high, new_weather.temp_high);
+        weather_so_far.temp_low = std::min(weather_so_far.temp_low, new_weather.temp_low);
+
+        // No moons. Just sun
+        if (new_weather.icon_type == WeatherIconType::Moon) {
+            new_weather.icon_type = WeatherIconType::Sunny;
+        }
+
+        // Update with the worst condition
+        if (condition_priority.at(new_weather.icon_type) > condition_priority.at(weather_so_far.icon_type)) {
+            weather_so_far.icon_type = new_weather.icon_type;
         }
     }
 }
+
+ForecastFetcher::ForecastFetcher(std::shared_ptr<NVStorage> storage)
+    : m_storage(std::move(storage)) {}
 
 bool ForecastFetcher::execute() {
     ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, nullptr, nullptr));
@@ -124,11 +120,11 @@ bool ForecastFetcher::execute() {
 
     ESP_LOGI(TAG, "Fetching forecast");
 
-    auto path = "/forecasts/v1/daily/5day/" + m_storage->get_string(NVS_WEATHER_CITY_KEY);
-    std::string query = "apikey=" + m_storage->get_string(NVS_WEATHER_API_TOKEN_KEY) + "&metric=true";
+    std::string path = "/data/2.5/forecast";
+    std::string query = "units=metric&q=" + m_storage->get_string(NVS_WEATHER_CITY_KEY) + "&appid=" + m_storage->get_string(NVS_WEATHER_API_TOKEN_KEY);
 
     esp_http_client_config_t config = {};
-    config.host = "dataservice.accuweather.com";
+    config.host = "api.openweathermap.org";
     config.path = path.c_str();
     config.query = query.c_str();
     config.method = HTTP_METHOD_GET;
@@ -162,7 +158,7 @@ bool ForecastFetcher::execute() {
     if (parse_forecast_json(sg_local_response_buffer,
                             esp_http_client_get_content_length(client),
                             forecast)) {
-        EventBus::get_instance().pubish(EventBusEvent::WeatherForecastEvent, forecast, sizeof(forecast));
+        EventBus::get_instance().publish(EventBusEvent::WeatherForecastEvent, forecast, sizeof(forecast));
     }
 
     ESP_LOGI(TAG, "Online forecast updated");
@@ -172,6 +168,8 @@ bool ForecastFetcher::execute() {
 }
 
 bool ForecastFetcher::parse_forecast_json(const char *json, int len, WeatherForecast result) {
+    size_t current_result_index = 0;
+
     time_t now{};
     time(&now);
 
@@ -182,78 +180,103 @@ bool ForecastFetcher::parse_forecast_json(const char *json, int len, WeatherFore
 
     CHECK_PARSE(json_parse_start(&jctx, json, len), "root");
 
+    WeatherForecastEntry current_day_weather = {
+        WeatherIconType::Sunny, // Default condition
+        1000,                   // Start with very high low temperature
+        -1000                   // Start with very low high temperature
+    };
+    int current_day_yday = -1; // Start with an invalid day
+
     int num_elem;
-    CHECK_PARSE(json_obj_get_array(&jctx, "DailyForecasts", &num_elem), "DailyForecasts");
+    CHECK_PARSE(json_obj_get_array(&jctx, "list", &num_elem), "list");
 
-    size_t element_counter = 0;
-    // There's always 5 elements in the array, so we can safely iterate over them
-    for (uint32_t i = 0; i < 5; ++i) {
-        CHECK_PARSE(json_arr_get_object(&jctx, i), "PredArray");
+    // Iterate over forecast
+    for (int i = 0; i < num_elem; ++i) {
+        CHECK_PARSE(json_arr_get_object(&jctx, i), "forecast_list_object");
 
-        // We need to parse the date to skip today's forecast. We only want future forecasts.
-        // Note: The date is in ISO 8601 format, so we can use std::get_time to parse it
-        std::string date_time_str{};
-        date_time_str.resize(30); // 2025-07-09T07:00:00+03:00
-        CHECK_PARSE(json_obj_get_string(&jctx, "Date", date_time_str.data(), date_time_str.size()), "Date");
+        // First we parse forecast timestamp
+        std::string dt_txt{};
+        dt_txt.resize(20);
+        json_obj_get_string(&jctx, "dt_txt", dt_txt.data(), dt_txt.size());
 
         tm forecast_timeinfo = {};
-        std::istringstream ss(date_time_str);
-        // Parse the string using the format specifier
-        ss >> std::get_time(&forecast_timeinfo, "%Y-%m-%dT%H:%M:%S");
+        std::istringstream ss(dt_txt);
+        ss >> std::get_time(&forecast_timeinfo, "%Y-%m-%d %H:%M:%S");
 
-        // Forecast contains data for today too. We skip it
-        if (forecast_timeinfo.tm_mday <= now_timeinfo.tm_mday)
-        {
-            ESP_LOGI(TAG, "Skipping forecast entry: Now: %02d-%02d-%04d %02d:%02d:%02d. Ts: %02d-%02d-%04d %02d:%02d:%02d",
-                     now_timeinfo.tm_mday, now_timeinfo.tm_mon + 1, now_timeinfo.tm_year + 1900,
-                     now_timeinfo.tm_hour, now_timeinfo.tm_min, now_timeinfo.tm_sec,
-                     forecast_timeinfo.tm_mday, forecast_timeinfo.tm_mon + 1, forecast_timeinfo.tm_year + 1900,
-                     forecast_timeinfo.tm_hour, forecast_timeinfo.tm_min, forecast_timeinfo.tm_sec);
-            json_arr_leave_object(&jctx);
+        if (ss.fail()) {
+            ESP_LOGE(TAG, "Error parsing date/time: %s", dt_txt.c_str());
+            json_arr_leave_object(&jctx); // forecast_list_object
             continue;
         }
-        else
-        {
-            ESP_LOGI(TAG, "Adding forecast entry: Now: %02d-%02d-%04d %02d:%02d:%02d. Ts: %02d-%02d-%04d %02d:%02d:%02d",
-                     now_timeinfo.tm_mday, now_timeinfo.tm_mon + 1, now_timeinfo.tm_year + 1900,
-                     now_timeinfo.tm_hour, now_timeinfo.tm_min, now_timeinfo.tm_sec,
-                     forecast_timeinfo.tm_mday, forecast_timeinfo.tm_mon + 1, forecast_timeinfo.tm_year + 1900,
-                     forecast_timeinfo.tm_hour, forecast_timeinfo.tm_min, forecast_timeinfo.tm_sec);
+
+        // Skip today forecasts
+        if (forecast_timeinfo.tm_yday <= now_timeinfo.tm_yday) {
+            json_arr_leave_object(&jctx); // forecast_list_object
+            continue;
         }
 
-        CHECK_PARSE(json_obj_get_object(&jctx, "Temperature"), "Temperature");
+        // Check if we finished analyzing current day
+        if (current_day_yday != forecast_timeinfo.tm_yday && current_day_yday != -1) {
+            ESP_LOGI(TAG, "Day %d.%d forecast: %f°C - %f°C, %s",
+                     forecast_timeinfo.tm_mday, forecast_timeinfo.tm_mon + 1,
+                     current_day_weather.temp_low,
+                     current_day_weather.temp_high,
+                     to_string(current_day_weather.icon_type).c_str());
 
-        CHECK_PARSE(json_obj_get_object(&jctx, "Minimum"), "Minimum");
-        float min_temp = 0;
-        CHECK_PARSE(json_obj_get_float(&jctx, "Value", &min_temp), "Value");
+            result[current_result_index] = current_day_weather;
+            current_result_index++;
 
-        json_obj_leave_object(&jctx);
-        CHECK_PARSE(json_obj_get_object(&jctx, "Maximum"), "Maximum");
-        float max_temp = 0;
-        CHECK_PARSE(json_obj_get_float(&jctx, "Value", &max_temp), "Value");
+            if (current_result_index >= 3) {
+                // Limit to 3 days
+                json_arr_leave_object(&jctx); // forecast_list_object
+                break;
+            }
 
-        json_obj_leave_object(&jctx);
-        json_obj_leave_object(&jctx);
-        CHECK_PARSE(json_obj_get_object(&jctx, "Day"), "Day");
-
-        int icon_type = 0;
-        CHECK_PARSE(json_obj_get_int(&jctx, "Icon", &icon_type), "Icon");
-        json_obj_leave_object(&jctx);
-        auto icon = icon_to_type(icon_type);
-
-        result[element_counter].temp_low = min_temp;
-        result[element_counter].temp_high = max_temp;
-        result[element_counter].icon_type = icon;
-        element_counter++;
-
-        json_arr_leave_object(&jctx);
-
-        if (element_counter >= 3)
-        {
-            break;
+            // New day, reset high and low
+            current_day_weather = {
+                WeatherIconType::Sunny, // Default condition
+                1000,                   // Start with very low high temperature
+                -1000                   // Start with very high low temperature
+            };
         }
+
+        current_day_yday = forecast_timeinfo.tm_yday;
+
+        // Don't want night weather to interfere with the day forecast
+        WeatherIconType condition = WeatherIconType::Sunny;
+        if (forecast_timeinfo.tm_hour >= 9) {
+            int num_elem;
+            std::string icon_type{};
+            icon_type.resize(10);
+
+            CHECK_PARSE(json_obj_get_array(&jctx, "weather", &num_elem), "weather");
+            CHECK_PARSE(json_arr_get_object(&jctx, 0), "weather_icon_obj");
+            CHECK_PARSE(json_obj_get_string(&jctx, "icon", icon_type.data(), icon_type.size()), "icon");
+            json_arr_leave_object(&jctx); // weather_icon_obj
+            json_obj_leave_array(&jctx);  // weather
+
+            condition = icon_to_condition(icon_type);
+        }
+
+        CHECK_PARSE(json_obj_get_object(&jctx, "main"), "main");
+
+        float temp_high = 0;
+        CHECK_PARSE(json_obj_get_float(&jctx, "temp_max", &temp_high), "temp_max");
+        float temp_low = 0;
+        CHECK_PARSE(json_obj_get_float(&jctx, "temp_min", &temp_low), "temp_min");
+
+        auto incoming_forecast = WeatherForecastEntry {
+            condition,
+            temp_low,
+            temp_high
+        };
+        update_daily_forecast(current_day_weather, incoming_forecast);
+
+        json_obj_leave_object(&jctx); // main
+        json_arr_leave_object(&jctx); // forecast_list_object
     }
 
+    json_obj_leave_array(&jctx);
     json_parse_end(&jctx);
 
     return true;

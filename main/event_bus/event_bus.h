@@ -25,7 +25,7 @@ public:
 
     // Publish data. If save_to_cache is true, the data will be saved to the cache.
     // If the data is already cached, it will be sent to all subscribers whn they subscribe.
-    void pubish(EventBusEvent event, const void* data, size_t size, bool save_to_cache = true);
+    void publish(EventBusEvent event, const void* data, size_t size, bool save_to_cache = true);
 
     // Subscribe to an event.
     // If the event is already cached, the data will be sent immediately.
