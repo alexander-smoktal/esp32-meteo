@@ -22,7 +22,7 @@
 
 static constexpr auto TAG = "Forecast Fetcher";
 
-static const uint32_t MAX_HTTP_OUTPUT_BUFFER = 10000;
+static const uint32_t MAX_HTTP_OUTPUT_BUFFER = 20000;
 static char sg_local_response_buffer[MAX_HTTP_OUTPUT_BUFFER + 1] = {0};
 
 // Only fetch when connected to WiFi
