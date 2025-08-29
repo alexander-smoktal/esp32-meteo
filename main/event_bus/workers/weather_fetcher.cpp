@@ -47,9 +47,10 @@ namespace
     WeatherIconType icon_to_condition(const std::string &icon) {
         const auto code = icon.substr(0, 2);
 
-        if (icon == "01d" || icon == "01n"){
-            // Check if it's night (ends with 'n') for moon
-            return (icon.back() == 'n') ? WeatherIconType::Moon : WeatherIconType::Sunny;
+         if (icon.starts_with("01d")) {
+            return WeatherIconType::Sunny;
+        } else if (icon.starts_with("01n")) {
+            return WeatherIconType::Moon;
         } else if (code == "02") {
             return WeatherIconType::MostlyCloudy;
         } else if (code == "03") {
