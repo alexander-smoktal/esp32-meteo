@@ -123,8 +123,8 @@ bool WeatherFetcher::execute() {
     }
 
 
-    const auto current_weather = parse_weather_json(sg_local_response_buffer + 1,
-                                                    esp_http_client_get_content_length(client) - 2);
+    const auto current_weather = parse_weather_json(sg_local_response_buffer,
+                                                    esp_http_client_get_content_length(client));
 
     EventBus::get_instance().publish(EventBusEvent::CurrentWeatherEvent, &current_weather, sizeof(current_weather));
 
