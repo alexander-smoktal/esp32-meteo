@@ -18,7 +18,7 @@ bool UiMainScreenState::enter() {
     });
 
     // This is a magic to delete previous screen without LVGL crashing
-    lv_screen_load_anim(m_main_screen, LV_SCR_LOAD_ANIM_NONE, 1, 1, true);
+    lv_screen_load(m_main_screen);
 
     return true;
 }

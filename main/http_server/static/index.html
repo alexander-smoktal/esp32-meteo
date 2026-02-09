@@ -178,7 +178,8 @@
                     // Check for x-weath_city header
                     const weatherCity = response.headers.get('x-weath_city');
                     if (weatherCity) {
-                        document.getElementById('weath_city').value = atob(weatherCity);
+                        // Decoding base64 encoded city name with Unicode support
+                        document.getElementById('weath_city').value = decodeURIComponent(escape(atob(weatherCity)));
                     }
 
                     // Check for x-time_zone header

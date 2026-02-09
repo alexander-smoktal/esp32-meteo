@@ -96,7 +96,11 @@ void ms_weather_set_outdoor(lv_obj_t *obj, int32_t temp, int32_t humid)
     ms_weather_t *widget = (ms_weather_t *)obj;
 
     MAYBE_LOCK_LVGL({
-        lv_label_set_text_fmt(widget->outdoor_temp, "T: %ld°C", temp);
+        if (temp < -9) {
+            lv_label_set_text_fmt(widget->outdoor_temp, "T: %ld°", temp);
+        } else {
+            lv_label_set_text_fmt(widget->outdoor_temp, "T: %ld°C", temp);
+        }
         lv_label_set_text_fmt(widget->outdoor_humidity, "H: %ld%%", humid);
     })
 }
