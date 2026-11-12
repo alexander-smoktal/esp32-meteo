@@ -17,6 +17,15 @@ idf_component_register(SRCS ${SOURCES}
 
 target_compile_features(${COMPONENT_LIB} PRIVATE cxx_std_23)
 
+# LVGL editor generated code includes "lvgl/lvgl.h", but the managed component directory is
+# named "lvgl__lvgl". Expose a copy of its headers under the expected name (symlinks don't
+# work well on Windows, and the component manager wipes extra dirs in managed_components).
+set(LVGL_ALIAS_DIR "${CMAKE_BINARY_DIR}/lvgl_alias")
+file(COPY "${CMAKE_SOURCE_DIR}/managed_components/lvgl__lvgl/"
+     DESTINATION "${LVGL_ALIAS_DIR}/lvgl"
+     FILES_MATCHING PATTERN "*.h")
+target_include_directories(${COMPONENT_LIB} PRIVATE "${LVGL_ALIAS_DIR}")
+
 # A define for LVGL editor to not compile platform specific code
 target_compile_definitions(${COMPONENT_LIB} PRIVATE MS_DEVICE_BUILD=1 NDEBUG=1)
 # Disable warnings for LVGL editor generated code

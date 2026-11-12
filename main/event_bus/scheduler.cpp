@@ -14,6 +14,12 @@ static constexpr auto TAG = "Scheduler";
 static const auto SCHEDULER_PREFIX = "_scdl_";
 static const auto TIME_CACHE_KEY = "_time_cache";
 
+// Every NVS commit is a flash write, and NVS pages get erased as they fill up. Persisting
+// state of frequent tasks wears the flash out and keeps it busy most of the time, so a
+// power loss is likely to hit an in-progress write/erase. Only persist infrequent tasks.
+static constexpr size_t MIN_PERSISTED_FREQUENCY_SECS = 15 * 60;
+static constexpr size_t TIME_CACHE_FREQUENCY_SECS = 10 * 60;
+
 InternalTask::InternalTask(std::shared_ptr<NVStorage> database)
     : m_database(std::move(database)) {
     if (m_database->has_key(TIME_CACHE_KEY)) {
@@ -40,7 +46,7 @@ bool InternalTask::execute() {
 
 Scheduler::Scheduler(std::shared_ptr<NVStorage> db) : m_database(std::move(db)) {
     // Start internal task
-    add_task(std::make_shared<InternalTask>(m_database), "schd_task", seconds(1));
+    add_task(std::make_shared<InternalTask>(m_database), "schd_task", TIME_CACHE_FREQUENCY_SECS);
 
     // Initialize the timer
     esp_timer_create_args_t timer_args = {};
@@ -55,8 +61,15 @@ Scheduler::Scheduler(std::shared_ptr<NVStorage> db) : m_database(std::move(db)) 
 void Scheduler::add_task(std::shared_ptr<Task> task, const std::string& name, size_t frequency_secs) {
     auto key = SCHEDULER_PREFIX + name;
 
+    const bool persistent = frequency_secs >= MIN_PERSISTED_FREQUENCY_SECS;
+
     size_t last_execution = -1;
-    if (m_database->has_key(key)) {
+    if (!persistent) {
+        // Drop a stale entry left by older firmware which persisted every task
+        if (m_database->has_key(key)) {
+            m_database->clear_entry(key);
+        }
+    } else if (m_database->has_key(key)) {
         last_execution = (size_t)m_database->get_int(key);
 
         // Print next execution debug info
@@ -89,7 +102,7 @@ void Scheduler::add_task(std::shared_ptr<Task> task, const std::string& name, si
         return;
     }
 
-    m_tasks.push_back({std::move(task), std::move(name), frequency_secs, last_execution, rtos_task_handle});
+    m_tasks.push_back({std::move(task), std::move(name), frequency_secs, last_execution, persistent, rtos_task_handle});
 }
 
 void Scheduler::tick(void* scheduler) {
@@ -118,10 +131,12 @@ void Scheduler::tick(void* scheduler) {
             }
 
             entry.last_execution_num = task_execution_num;
-            auto key = SCHEDULER_PREFIX + entry.name;
 
             // Store the last execution number in the database
-            self->m_database->set_int(key, (int32_t)entry.last_execution_num);
+            if (entry.persistent) {
+                auto key = SCHEDULER_PREFIX + entry.name;
+                self->m_database->set_int(key, (int32_t)entry.last_execution_num);
+            }
         }
     }
 }

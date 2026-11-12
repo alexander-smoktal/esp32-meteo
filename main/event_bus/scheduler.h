@@ -42,6 +42,7 @@ class Scheduler {
         std::string name;           // The name of the task
         size_t frequency_secs;      // Frequency in seconds from the beginning of the day
         size_t last_execution_num;  // The last execution number of the task
+        bool persistent;            // Whether the last execution number is stored in NVS
         TaskHandle_t task_handle;   // The FreeRTOS task handle for the task
     };
 
