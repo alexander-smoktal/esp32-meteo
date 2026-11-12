@@ -133,5 +133,7 @@
   "python.analysis.extraPaths": [
     "${workspaceFolder}/sources/poky/bitbake/lib",
     "${workspaceFolder}/sources/poky/meta/lib"
-  ]
+  ],
+  "idf.currentSetup": "E:/Programs/esp-idf/",
+  "idf.portWin": "COM3"
 }

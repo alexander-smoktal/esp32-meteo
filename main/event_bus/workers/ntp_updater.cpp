@@ -26,8 +26,9 @@ NtpUpdater::NtpUpdater(std::shared_ptr<NVStorage> storage) {
     } else {
         ESP_LOGW(TAG, "No time zone found in storage, using default EET-2EEST-3");
 
-        // Default to Eastern European Summer Time (EEST) with a 2-hour offset and 3-hour DST
-        setenv("TZ", "EET-2EEST-3,M4.5.0/3,M10.5.0/4", 1);
+        // Default to Ukraine / EU rules: EET (UTC+2) standard, EEST (UTC+3) summer.
+        // DST starts last Sunday of March at 03:00 local, ends last Sunday of October at 04:00 local.
+        setenv("TZ", "EET-2EEST-3,M3.5.0/3,M10.5.0/4", 1);
     }
 
     tzset();

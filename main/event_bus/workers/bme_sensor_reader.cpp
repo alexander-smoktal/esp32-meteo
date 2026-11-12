@@ -12,6 +12,7 @@ BmeSensorReader::BmeSensorReader() {
 
 bool BmeSensorReader::execute() {
     BmeSensorData sensor_data = {};
+    m_sensor.trigger_measurement();
     sensor_data.temperature = m_sensor.read_temperature();
     sensor_data.humidity = m_sensor.read_humidity();
     sensor_data.pressure = m_sensor.read_pressure() * 0.75006375541921; // Convert to mmHg

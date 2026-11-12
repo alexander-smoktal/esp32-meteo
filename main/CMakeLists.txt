@@ -23,6 +23,6 @@ target_compile_definitions(${COMPONENT_LIB} PRIVATE MS_DEVICE_BUILD=1 NDEBUG=1)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-discarded-qualifiers -Wno-unused-variable")
 
 # Uncomment when flashing fir the first time
-# fatfs_create_spiflash_image(static "http_server/static" FLASH_IN_PROJECT)
-# fatfs_create_spiflash_image(data "data" FLASH_IN_PROJECT)
-# fatfs_create_spiflash_image(images "ui/lvgl_meteo/images" FLASH_IN_PROJECT)
+fatfs_create_spiflash_image(static "http_server/static" FLASH_IN_PROJECT)
+fatfs_create_spiflash_image(data "data" FLASH_IN_PROJECT)
+fatfs_create_spiflash_image(images "ui/lvgl_meteo/images" FLASH_IN_PROJECT)

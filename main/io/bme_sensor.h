@@ -12,6 +12,8 @@ public:
     BME280Sensor();
     ~BME280Sensor();
 
+    void trigger_measurement();
+
     float read_temperature();
     float read_humidity();
     float read_pressure();

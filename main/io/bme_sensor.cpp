@@ -41,6 +41,22 @@ BME280Sensor::BME280Sensor() {
     ESP_LOGI("BME sensor", "Reading: %d", bme280_is_reading_calibration(m_bme280));
 
     ESP_ERROR_CHECK(bme280_default_init(m_bme280));
+
+    // Switch from the default NORMAL/X16/0.5ms-standby continuous mode to forced
+    // mode with X1 oversampling. The default config causes ~1-2 °C of sensor
+    // self-heating; forced mode takes one measurement on demand and sleeps.
+    ESP_ERROR_CHECK(bme280_set_sampling(
+        m_bme280,
+        BME280_MODE_FORCED,
+        BME280_SAMPLING_X1,
+        BME280_SAMPLING_X1,
+        BME280_SAMPLING_X1,
+        BME280_FILTER_OFF,
+        BME280_STANDBY_MS_1000));
+}
+
+void BME280Sensor::trigger_measurement() {
+    bme280_take_forced_measurement(m_bme280);
 }
 
 BME280Sensor::~BME280Sensor() {
